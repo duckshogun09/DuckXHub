@@ -63,3 +63,6 @@ function AutoFarmFunction()
         end
     end)
 end
+
+-- Load Rayfield UI (QUAN TRỌNG!)
+Rayfield:Load()
