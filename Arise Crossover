@@ -1,53 +1,28 @@
--- Gui Library (Rayfield UI)
-local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+-- Load Kavo UI Library
+local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/xHeptc/Kavo-UI-Library/main/source.lua"))()
 
-local Window = Rayfield:CreateWindow({
-    Name = "Arise Crossover | Hub",
-    LoadingTitle = "Arise Crossover | Hub",
-    LoadingSubtitle = "by bạn 😎",
-    ConfigurationSaving = {
-        Enabled = true,
-        FolderName = "AriseCrossoverConfig",
-        FileName = "AriseHub"
-    },
-    Discord = {
-        Enabled = false,
-    },
-    KeySystem = false
-})
+local Window = Library.CreateLib("Arise Crossover | Hub", "Ocean") -- Theme bạn có thể đổi, ví dụ: "DarkTheme", "BloodTheme", "Ocean", "GrapeTheme"
 
 local AutoFarm = false
-local SelectedMob = "Soondo" -- Mặc định ban đầu là Soondo
+local SelectedMob = "Soondo"
 
 -- Tab Farm
-local FarmTab = Window:CreateTab("Farm", 4483345998)
+local FarmTab = Window:NewTab("Farm")
+local FarmSection = FarmTab:NewSection("Farm Mobs")
 
 -- Dropdown chọn mob
-FarmTab:CreateDropdown({
-    Name = "Chọn Mob",
-    Options = {"Soondo", "Mob1", "Mob2", "Mob3"}, -- ✅: Thêm tên mob khác nếu muốn
-    CurrentOption = "Soondo",
-    Callback = function(Option)
-        SelectedMob = Option
-        Rayfield:Notify({
-            Title = "Đã chọn Mob",
-            Content = "Bạn đã chọn: " .. Option,
-            Duration = 3,
-        })
-    end,
-})
+FarmSection:NewDropdown("Chọn Mob", "Chọn quái để farm", {"Soondo", "Mob1", "Mob2", "Mob3"}, function(currentOption)
+    SelectedMob = currentOption
+    Library:Notify("Thông báo", "Bạn đã chọn: " .. currentOption, 3)
+end)
 
 -- Toggle Auto Farm
-FarmTab:CreateToggle({
-    Name = "Auto Farm Mobs",
-    CurrentValue = false,
-    Callback = function(Value)
-        AutoFarm = Value
-        if AutoFarm then
-            AutoFarmFunction()
-        end
+FarmSection:NewToggle("Auto Farm Mobs", "Tự động farm quái đã chọn", false, function(state)
+    AutoFarm = state
+    if AutoFarm then
+        AutoFarmFunction()
     end
-})
+end)
 
 -- Auto Farm Function
 function AutoFarmFunction()
