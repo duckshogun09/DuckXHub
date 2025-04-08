@@ -1,21 +1,30 @@
--- Gui Library (UI Library đẹp mắt)
-local OrionLib = loadstring(game:HttpGet('https://raw.githubusercontent.com/shlexware/Orion/main/source'))()
+-- Gui Library (Rayfield UI)
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
-local Window = OrionLib:MakeWindow({Name = "Arise Crossover | Hub", HidePremium = false, SaveConfig = true, ConfigFolder = "AriseCrossoverConfig"})
+local Window = Rayfield:CreateWindow({
+    Name = "Arise Crossover | Hub",
+    LoadingTitle = "Arise Crossover | Hub",
+    LoadingSubtitle = "by bạn 😎",
+    ConfigurationSaving = {
+        Enabled = true,
+        FolderName = "AriseCrossoverConfig",
+        FileName = "AriseHub"
+    },
+    Discord = {
+        Enabled = false,
+    },
+    KeySystem = false
+})
 
 local AutoFarm = false
 
 -- Tab Farm
-local FarmTab = Window:MakeTab({
-    Name = "Farm",
-    Icon = "rbxassetid://4483345998",
-    PremiumOnly = false
-})
+local FarmTab = Window:CreateTab("Farm", 4483345998)
 
 -- Toggle Auto Farm
-FarmTab:AddToggle({
+FarmTab:CreateToggle({
     Name = "Auto Farm Mobs",
-    Default = false,
+    CurrentValue = false,
     Callback = function(Value)
         AutoFarm = Value
         if AutoFarm then
@@ -26,7 +35,7 @@ FarmTab:AddToggle({
 
 -- Auto Farm Function
 function AutoFarmFunction()
-    spawn(function()
+    task.spawn(function()
         while AutoFarm do
             pcall(function()
                 -- Tìm mob gần nhất
@@ -45,15 +54,12 @@ function AutoFarmFunction()
                                 [1] = mob
                             }
                             game:GetService("ReplicatedStorage").Remotes.Combat:FireServer(unpack(args))
-                            wait(0.2) -- Delay nhỏ tránh spam quá nhanh
+                            task.wait(0.2) -- Delay nhỏ tránh spam quá nhanh
                         end
                     end
                 end
             end)
-            wait(0.1)
+            task.wait(0.1)
         end
     end)
 end
-
--- Load GUI
-OrionLib:Init()
