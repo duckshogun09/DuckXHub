@@ -1,44 +1,26 @@
--- Gui Library (Rayfield UI)
-local Rayfield = loadstring(game:HttpGet('https://raw.githubusercontent.com/shlexware/Rayfield/main/source'))()
+-- Load Kavo Library
+local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/xHeptc/Kavo-UI-Library/main/source.lua"))()
 
-local Window = Rayfield:CreateWindow({
-    Name = "Arise Crossover | Hub",
-    LoadingTitle = "Arise Crossover | Hub",
-    LoadingSubtitle = "by bạn 😎",
-    ConfigurationSaving = {
-        Enabled = true,
-        FolderName = "AriseCrossoverConfig",
-        FileName = "AriseHub"
-    },
-    Discord = {
-        Enabled = false,
-    },
-    KeySystem = false
-})
+local Window = Library.CreateLib("Arise Crossover | Hub", "Ocean")
 
 local AutoFarm = false
 
 -- Tab Farm
-local FarmTab = Window:CreateTab("Farm", 4483362458) -- icon cây cuốc
+local FarmTab = Window:NewTab("Farm")
+local FarmSection = FarmTab:NewSection("Auto Farm")
 
--- Toggle Auto Farm
-FarmTab:CreateToggle({
-    Name = "Auto Farm Mobs",
-    CurrentValue = false,
-    Callback = function(Value)
-        AutoFarm = Value
-        if AutoFarm then
-            AutoFarmFunction()
-        end
+FarmSection:NewToggle("Auto Farm Mobs", "Tự động farm quái", function(state)
+    AutoFarm = state
+    if AutoFarm then
+        AutoFarmFunction()
     end
-})
+end)
 
 -- Auto Farm Function
 function AutoFarmFunction()
     task.spawn(function()
         while AutoFarm do
             pcall(function()
-                -- Tìm mob gần nhất
                 local player = game.Players.LocalPlayer
                 local character = player.Character
                 local mobs = workspace:FindFirstChild("Mobs")
@@ -49,8 +31,11 @@ function AutoFarmFunction()
                             -- Teleport tới mob
                             character.HumanoidRootPart.CFrame = mob.HumanoidRootPart.CFrame * CFrame.new(0, 0, 3)
 
-                            -- Tấn công mob (gửi sự kiện remote)
-                            game:GetService("ReplicatedStorage").Remotes.Combat:FireServer(mob)
+                            -- Tấn công mob
+                            local args = {
+                                [1] = mob
+                            }
+                            game:GetService("ReplicatedStorage").Remotes.Combat:FireServer(unpack(args))
                             task.wait(0.2)
                         end
                     end
@@ -60,6 +45,3 @@ function AutoFarmFunction()
         end
     end)
 end
-
--- Load Rayfield UI
-Rayfield:Load()
