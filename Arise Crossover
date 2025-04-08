@@ -1,122 +1,89 @@
--- Load Kavo UI Library
-local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/xHeptc/Kavo-UI-Library/main/source.lua"))()
+-- Tải UI Library
+loadstring(game:HttpGet("https://raw.githubusercontent.com/daucobonhi/Ui-Redz-V2/main/UiREDzV2.lua"))()
 
-local Window = Library.CreateLib("Arise Crossover | Hub", "Ocean")
+-- Tạo cửa sổ chính
+local Window = MakeWindow({
+    Hub = {
+        Title = "Arise Crossover Menu",
+        Animation = "Youtube: TBoy Roblox"
+    },
+    Key = {
+        KeySystem = false,
+        Title = "Key System",
+        Description = "",
+        KeyLink = "",
+        Keys = {"1234"},
+        Notifi = {
+            Notifications = true,
+            CorrectKey = "Running the Script...",
+            Incorrectkey = "The key is incorrect",
+            CopyKeyLink = "Copied to Clipboard"
+        }
+    }
+})
 
-local AutoFarm = false
-local SelectedMob = nil
-local mobsList = {}
-local mobDropdown
+-- Nút thu nhỏ cửa sổ
+MinimizeButton({
+    Image = "http://www.roblox.com/asset/?id=83190276951914",
+    Size = {60, 60},
+    Color = Color3.fromRGB(10, 10, 10),
+    Corner = true,
+    Stroke = false,
+    StrokeColor = Color3.fromRGB(255, 0, 0)
+})
 
--- Tab Farm
-local FarmTab = Window:NewTab("Farm")
-local FarmSection = FarmTab:NewSection("Farm Mobs")
+-- Tạo Tab "Script Farm"
+local FarmTab = MakeTab({ Name = "Script Farm" })
 
--- Label Mob đã chọn
-local selectedLabel = FarmSection:NewLabel("Mob đã chọn: Không có")
+-- Nút: Redz Hub
+AddButton(FarmTab, {
+    Name = "Redz Hub",
+    Callback = function()
+        local Settings = {
+            JoinTeam = "Pirates", -- Pirates/Marines
+            Translator = true -- true/false
+        }
 
--- Hàm cập nhật dropdown
-local function RefreshDropdown()
-    if mobDropdown then
-        mobDropdown:Clear()
-        for _, mobName in ipairs(mobsList) do
-            mobDropdown:Add(mobName)
-        end
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/realredz/BloxFruits/main/Source.lua"))(Settings)
     end
-end
+})
 
--- Hàm thêm mob mới
-local function AddMob(mobName)
-    if not table.find(mobsList, mobName) then
-        table.insert(mobsList, mobName)
-        RefreshDropdown()
+-- Bạn có thể thêm nhiều nút hơn như sau:
+AddButton(FarmTab, {
+    Name = "Auto Farm EXP",
+    Callback = function()
+        -- Code auto farm exp hoặc load từ bên ngoài
+        loadstring(game:HttpGet("https://pastebin.com/raw/XXXXXXX"))()
     end
-end
+})
 
--- Hàm xóa mob khi despawn (optional, mob đã chết hoặc despawn)
-local function RemoveMob(mobName)
-    for i, name in ipairs(mobsList) do
-        if name == mobName then
-            table.remove(mobsList, i)
-            RefreshDropdown()
-            break
-        end
+AddButton(FarmTab, {
+    Name = "Teleport Hub",
+    Callback = function()
+        -- Code teleport hoặc mở GUI teleport
+        print("Đang mở menu Teleport")
     end
-end
+})
 
--- Theo dõi mob mới spawn hoặc despawn
-local mobsFolder = workspace:WaitForChild("Mobs")
-mobsFolder.ChildAdded:Connect(function(child)
-    if child:IsA("Model") and child:FindFirstChild("HumanoidRootPart") then
-        AddMob(child.Name)
+-- Thêm Tab phụ nếu muốn
+local SettingsTab = MakeTab({ Name = "Settings" })
+
+AddButton(SettingsTab, {
+    Name = "Reset Character",
+    Callback = function()
+        game.Players.LocalPlayer.Character:BreakJoints()
     end
-end)
+})
 
-mobsFolder.ChildRemoved:Connect(function(child)
-    if child:IsA("Model") then
-        RemoveMob(child.Name)
+AddButton(SettingsTab, {
+    Name = "Anti AFK",
+    Callback = function()
+        local vu = game:GetService("VirtualUser")
+        game:GetService("Players").LocalPlayer.Idled:Connect(function()
+            vu:Button2Down(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
+            wait(1)
+            vu:Button2Up(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
+        end)
+        print("Anti AFK đã được kích hoạt!")
     end
-end)
-
--- Quét ban đầu khi mở script
-for _, mob in pairs(mobsFolder:GetChildren()) do
-    if mob:IsA("Model") and mob:FindFirstChild("HumanoidRootPart") then
-        AddMob(mob.Name)
-    end
-end
-
--- Tạo Dropdown chọn mob
-mobDropdown = FarmSection:NewDropdown("Chọn Mob", "Chọn quái để farm", mobsList, function(currentOption)
-    SelectedMob = currentOption
-    selectedLabel:UpdateLabel("Mob đã chọn: " .. SelectedMob)
-    Library:Notify("Mob đã chọn!", "Bạn đã chọn: " .. SelectedMob, 3)
-end)
-
--- Nút teleport tới mob đã chọn
-FarmSection:NewButton("Teleport tới Mob", "Dịch chuyển tới mob đã chọn", function()
-    local character = game.Players.LocalPlayer.Character
-    if character and character:FindFirstChild("HumanoidRootPart") and SelectedMob then
-        for _, mob in pairs(mobsFolder:GetChildren()) do
-            if mob.Name == SelectedMob and mob:FindFirstChild("HumanoidRootPart") then
-                character.HumanoidRootPart.CFrame = mob.HumanoidRootPart.CFrame * CFrame.new(0, 0, 3)
-                Library:Notify("Dịch chuyển thành công!", "Tới mob: " .. SelectedMob, 3)
-                break
-            end
-        end
-    else
-        Library:Notify("Lỗi!", "Không tìm thấy mob hoặc chưa chọn!", 3)
-    end
-end)
-
--- Toggle Auto Farm
-FarmSection:NewToggle("Auto Farm Mob", "Tự động farm mob đã chọn", false, function(state)
-    AutoFarm = state
-    if AutoFarm then
-        AutoFarmFunction()
-    end
-end)
-
--- Auto Farm Function
-function AutoFarmFunction()
-    task.spawn(function()
-        while AutoFarm do
-            pcall(function()
-                local player = game.Players.LocalPlayer
-                local character = player.Character
-
-                if mobsFolder and character and character:FindFirstChild("HumanoidRootPart") and SelectedMob then
-                    for _, mob in pairs(mobsFolder:GetChildren()) do
-                        if mob.Name == SelectedMob and mob:FindFirstChild("HumanoidRootPart") and mob:FindFirstChild("Humanoid") and mob.Humanoid.Health > 0 then
-                            character.HumanoidRootPart.CFrame = mob.HumanoidRootPart.CFrame * CFrame.new(0, 0, 3)
-
-                            local args = {[1] = mob}
-                            game:GetService("ReplicatedStorage").Remotes.Combat:FireServer(unpack(args))
-                            task.wait(0.2)
-                        end
-                    end
-                end
-            end)
-            task.wait(0.1)
-        end
-    end)
-end
+})
