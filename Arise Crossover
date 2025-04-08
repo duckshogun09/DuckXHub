@@ -1,20 +1,19 @@
 -- Load Kavo UI Library
 local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/xHeptc/Kavo-UI-Library/main/source.lua"))()
 
-local Window = Library.CreateLib("Arise Crossover | Hub", "Ocean") -- Theme bạn có thể đổi, ví dụ: "DarkTheme", "BloodTheme", "Ocean", "GrapeTheme"
+local Window = Library.CreateLib("Arise Crossover | Hub", "Ocean")
 
 local AutoFarm = false
-local SelectedMob = "Soondo"
+local SelectedMob = nil
 
 -- Tab Farm
 local FarmTab = Window:NewTab("Farm")
 local FarmSection = FarmTab:NewSection("Farm Mobs")
 
--- Dropdown chọn mob
-FarmSection:NewDropdown("Chọn Mob", "Chọn quái để farm", {"Soondo", "Mob1", "Mob2", "Mob3"}, function(currentOption)
-    SelectedMob = currentOption
-    Library:Notify("Thông báo", "Bạn đã chọn: " .. currentOption, 3)
-end)
+-- Hiển thị mob đã chọn
+FarmSection:NewLabel("Chọn Mob bằng cách click vào nó trong game")
+
+local selectedLabel = FarmSection:NewLabel("Mob đã chọn: Không có")
 
 -- Toggle Auto Farm
 FarmSection:NewToggle("Auto Farm Mobs", "Tự động farm quái đã chọn", false, function(state)
@@ -33,7 +32,7 @@ function AutoFarmFunction()
                 local character = player.Character
                 local mobs = workspace:FindFirstChild("Mobs")
 
-                if mobs and character and character:FindFirstChild("HumanoidRootPart") then
+                if mobs and character and character:FindFirstChild("HumanoidRootPart") and SelectedMob then
                     for _, mob in pairs(mobs:GetChildren()) do
                         if mob.Name == SelectedMob and mob:FindFirstChild("HumanoidRootPart") and mob:FindFirstChild("Humanoid") and mob.Humanoid.Health > 0 then
                             -- Teleport tới mob đã chọn
@@ -51,3 +50,17 @@ function AutoFarmFunction()
         end
     end)
 end
+
+-- Detect click vào mob
+local UIS = game:GetService("UserInputService")
+local player = game.Players.LocalPlayer
+local mouse = player:GetMouse()
+
+mouse.Button1Down:Connect(function()
+    local target = mouse.Target
+    if target and target.Parent and target.Parent:FindFirstChild("Humanoid") then
+        SelectedMob = target.Parent.Name
+        selectedLabel:UpdateLabel("Mob đã chọn: " .. SelectedMob)
+        Library:Notify("Mob đã chọn!", "Bạn đã chọn: " .. SelectedMob, 3)
+    end
+end)
