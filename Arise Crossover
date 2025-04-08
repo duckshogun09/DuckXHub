@@ -1,0 +1,59 @@
+-- Gui Library (UI Library đẹp mắt)
+local OrionLib = loadstring(game:HttpGet('https://raw.githubusercontent.com/shlexware/Orion/main/source'))()
+
+local Window = OrionLib:MakeWindow({Name = "Arise Crossover | Hub", HidePremium = false, SaveConfig = true, ConfigFolder = "AriseCrossoverConfig"})
+
+local AutoFarm = false
+
+-- Tab Farm
+local FarmTab = Window:MakeTab({
+    Name = "Farm",
+    Icon = "rbxassetid://4483345998",
+    PremiumOnly = false
+})
+
+-- Toggle Auto Farm
+FarmTab:AddToggle({
+    Name = "Auto Farm Mobs",
+    Default = false,
+    Callback = function(Value)
+        AutoFarm = Value
+        if AutoFarm then
+            AutoFarmFunction()
+        end
+    end
+})
+
+-- Auto Farm Function
+function AutoFarmFunction()
+    spawn(function()
+        while AutoFarm do
+            pcall(function()
+                -- Tìm mob gần nhất
+                local player = game.Players.LocalPlayer
+                local character = player.Character
+                local mobs = workspace:FindFirstChild("Mobs")
+
+                if mobs and character and character:FindFirstChild("HumanoidRootPart") then
+                    for _, mob in pairs(mobs:GetChildren()) do
+                        if mob:FindFirstChild("HumanoidRootPart") and mob:FindFirstChild("Humanoid") and mob.Humanoid.Health > 0 then
+                            -- Teleport tới mob
+                            character.HumanoidRootPart.CFrame = mob.HumanoidRootPart.CFrame * CFrame.new(0, 0, 3)
+
+                            -- Tấn công mob (gửi sự kiện remote)
+                            local args = {
+                                [1] = mob
+                            }
+                            game:GetService("ReplicatedStorage").Remotes.Combat:FireServer(unpack(args))
+                            wait(0.2) -- Delay nhỏ tránh spam quá nhanh
+                        end
+                    end
+                end
+            end)
+            wait(0.1)
+        end
+    end)
+end
+
+-- Load GUI
+OrionLib:Init()
