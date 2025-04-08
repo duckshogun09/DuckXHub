@@ -1,20 +1,53 @@
--- Load Kavo Library
-local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/xHeptc/Kavo-UI-Library/main/source.lua"))()
+-- Gui Library (Rayfield UI)
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
-local Window = Library.CreateLib("Arise Crossover | Hub", "Ocean")
+local Window = Rayfield:CreateWindow({
+    Name = "Arise Crossover | Hub",
+    LoadingTitle = "Arise Crossover | Hub",
+    LoadingSubtitle = "by bạn 😎",
+    ConfigurationSaving = {
+        Enabled = true,
+        FolderName = "AriseCrossoverConfig",
+        FileName = "AriseHub"
+    },
+    Discord = {
+        Enabled = false,
+    },
+    KeySystem = false
+})
 
 local AutoFarm = false
+local SelectedMob = "Soondo" -- Mặc định ban đầu là Soondo
 
 -- Tab Farm
-local FarmTab = Window:NewTab("Farm")
-local FarmSection = FarmTab:NewSection("Auto Farm")
+local FarmTab = Window:CreateTab("Farm", 4483345998)
 
-FarmSection:NewToggle("Auto Farm Mobs", "Tự động farm quái", function(state)
-    AutoFarm = state
-    if AutoFarm then
-        AutoFarmFunction()
+-- Dropdown chọn mob
+FarmTab:CreateDropdown({
+    Name = "Chọn Mob",
+    Options = {"Soondo", "Mob1", "Mob2", "Mob3"}, -- ✅: Thêm tên mob khác nếu muốn
+    CurrentOption = "Soondo",
+    Callback = function(Option)
+        SelectedMob = Option
+        Rayfield:Notify({
+            Title = "Đã chọn Mob",
+            Content = "Bạn đã chọn: " .. Option,
+            Duration = 3,
+        })
+    end,
+})
+
+-- Toggle Auto Farm
+FarmTab:CreateToggle({
+    Name = "Auto Farm Mobs",
+    CurrentValue = false,
+    Callback = function(Value)
+        AutoFarm = Value
+        if AutoFarm then
+            AutoFarmFunction()
+        end
     end
-end)
+})
 
 -- Auto Farm Function
 function AutoFarmFunction()
@@ -27,14 +60,12 @@ function AutoFarmFunction()
 
                 if mobs and character and character:FindFirstChild("HumanoidRootPart") then
                     for _, mob in pairs(mobs:GetChildren()) do
-                        if mob:FindFirstChild("HumanoidRootPart") and mob:FindFirstChild("Humanoid") and mob.Humanoid.Health > 0 then
-                            -- Teleport tới mob
+                        if mob.Name == SelectedMob and mob:FindFirstChild("HumanoidRootPart") and mob:FindFirstChild("Humanoid") and mob.Humanoid.Health > 0 then
+                            -- Teleport tới mob đã chọn
                             character.HumanoidRootPart.CFrame = mob.HumanoidRootPart.CFrame * CFrame.new(0, 0, 3)
 
                             -- Tấn công mob
-                            local args = {
-                                [1] = mob
-                            }
+                            local args = {[1] = mob}
                             game:GetService("ReplicatedStorage").Remotes.Combat:FireServer(unpack(args))
                             task.wait(0.2)
                         end
