@@ -10,43 +10,57 @@ local SelectedMob = nil
 local FarmTab = Window:NewTab("Farm")
 local FarmSection = FarmTab:NewSection("Farm Mobs")
 
--- Hiển thị mob đã chọn
+-- Label Mob đã chọn
 local selectedLabel = FarmSection:NewLabel("Mob đã chọn: Không có")
 
--- Dropdown chọn mob
+-- Mob list dynamic
 local mobsList = {}
+local mobDropdown
+
 local function UpdateMobList()
+    mobsList = {}
     local mobsFolder = workspace:FindFirstChild("Mobs")
     if mobsFolder then
-        mobsList = {}
         for _, mob in pairs(mobsFolder:GetChildren()) do
-            if table.find(mobsList, mob.Name) == nil then
-                table.insert(mobsList, mob.Name)
+            if mob:IsA("Model") and mob:FindFirstChild("HumanoidRootPart") then
+                if not table.find(mobsList, mob.Name) then
+                    table.insert(mobsList, mob.Name)
+                end
             end
+        end
+    end
+
+    -- Update dropdown nếu đã tạo
+    if mobDropdown then
+        mobDropdown:Clear() -- Xóa lựa chọn cũ
+        for _, mobName in ipairs(mobsList) do
+            mobDropdown:Add(mobName)
         end
     end
 end
 
-UpdateMobList()
-
-FarmSection:NewDropdown("Chọn Mob", "Chọn quái để farm và teleport", mobsList, function(currentOption)
+-- Tạo Dropdown chọn mob
+mobDropdown = FarmSection:NewDropdown("Chọn Mob", "Chọn quái để farm", mobsList, function(currentOption)
     SelectedMob = currentOption
     selectedLabel:UpdateLabel("Mob đã chọn: " .. SelectedMob)
     Library:Notify("Mob đã chọn!", "Bạn đã chọn: " .. SelectedMob, 3)
 end)
 
-FarmSection:NewButton("Cập nhật danh sách Mob", "Làm mới danh sách Mob", function()
-    UpdateMobList()
-    Library:Notify("Danh sách đã cập nhật!", "Danh sách mob đã được làm mới.", 3)
+-- Cập nhật danh sách mob mỗi vài giây
+task.spawn(function()
+    while true do
+        UpdateMobList()
+        task.wait(3)
+    end
 end)
 
 -- Nút teleport tới mob đã chọn
 FarmSection:NewButton("Teleport tới Mob", "Dịch chuyển tới mob đã chọn", function()
-    local mobs = workspace:FindFirstChild("Mobs")
+    local mobsFolder = workspace:FindFirstChild("Mobs")
     local character = game.Players.LocalPlayer.Character
 
-    if mobs and character and character:FindFirstChild("HumanoidRootPart") and SelectedMob then
-        for _, mob in pairs(mobs:GetChildren()) do
+    if mobsFolder and character and character:FindFirstChild("HumanoidRootPart") and SelectedMob then
+        for _, mob in pairs(mobsFolder:GetChildren()) do
             if mob.Name == SelectedMob and mob:FindFirstChild("HumanoidRootPart") then
                 character.HumanoidRootPart.CFrame = mob.HumanoidRootPart.CFrame * CFrame.new(0, 0, 3)
                 Library:Notify("Dịch chuyển thành công!", "Bạn đã dịch chuyển tới: " .. SelectedMob, 3)
@@ -73,10 +87,10 @@ function AutoFarmFunction()
             pcall(function()
                 local player = game.Players.LocalPlayer
                 local character = player.Character
-                local mobs = workspace:FindFirstChild("Mobs")
+                local mobsFolder = workspace:FindFirstChild("Mobs")
 
-                if mobs and character and character:FindFirstChild("HumanoidRootPart") and SelectedMob then
-                    for _, mob in pairs(mobs:GetChildren()) do
+                if mobsFolder and character and character:FindFirstChild("HumanoidRootPart") and SelectedMob then
+                    for _, mob in pairs(mobsFolder:GetChildren()) do
                         if mob.Name == SelectedMob and mob:FindFirstChild("HumanoidRootPart") and mob:FindFirstChild("Humanoid") and mob.Humanoid.Health > 0 then
                             -- Teleport tới mob đã chọn
                             character.HumanoidRootPart.CFrame = mob.HumanoidRootPart.CFrame * CFrame.new(0, 0, 3)
