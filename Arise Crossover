@@ -1,5 +1,5 @@
 -- Gui Library (Rayfield UI)
-local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+local Rayfield = loadstring(game:HttpGet('https://raw.githubusercontent.com/shlexware/Rayfield/main/source'))()
 
 local Window = Rayfield:CreateWindow({
     Name = "Arise Crossover | Hub",
@@ -64,5 +64,5 @@ function AutoFarmFunction()
     end)
 end
 
--- Load Rayfield UI (QUAN TRỌNG!)
+-- Load Rayfield UI
 Rayfield:Load()
