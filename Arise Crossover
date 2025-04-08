@@ -19,7 +19,7 @@ local Window = Rayfield:CreateWindow({
 local AutoFarm = false
 
 -- Tab Farm
-local FarmTab = Window:CreateTab("Farm", 4483345998)
+local FarmTab = Window:CreateTab("Farm", 4483362458) -- icon cây cuốc
 
 -- Toggle Auto Farm
 FarmTab:CreateToggle({
@@ -50,11 +50,8 @@ function AutoFarmFunction()
                             character.HumanoidRootPart.CFrame = mob.HumanoidRootPart.CFrame * CFrame.new(0, 0, 3)
 
                             -- Tấn công mob (gửi sự kiện remote)
-                            local args = {
-                                [1] = mob
-                            }
-                            game:GetService("ReplicatedStorage").Remotes.Combat:FireServer(unpack(args))
-                            task.wait(0.2) -- Delay nhỏ tránh spam quá nhanh
+                            game:GetService("ReplicatedStorage").Remotes.Combat:FireServer(mob)
+                            task.wait(0.2)
                         end
                     end
                 end
