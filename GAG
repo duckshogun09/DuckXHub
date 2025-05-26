@@ -12,7 +12,7 @@ if game.PlaceId == 126884695634066 then
 	})
 
 	-- Tạo tab Home
-	local HomeTab = Window:CreateTab("Home", 6031283691)
+	local HomeTab = Window:CreateTab("Home", 🏠︎)
 
 	-- Thông báo
 	HomeTab:CreateParagraph({
