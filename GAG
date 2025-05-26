@@ -15,14 +15,11 @@ if game.PlaceId == 126884695634066 then
 	local HomeTab = Window:CreateTab("Home", 6031094674)
 
 	-- Thông báo tự động từ GitHub
-	local message = game:HttpGet("https://github.com/duckshogun09/DuckHub/blob/main/notice.txt")
+	local message = game:HttpGet("https://raw.githubusercontent.com/duckshogun09/DuckHub/refs/heads/main/notice.txt")
 	HomeTab:CreateParagraph({
 		Title = "Thông báo mới nhất",
 		Content = message
 	})
-
-	-- Phân cách
-	HomeTab:CreateLabel("----------------")
 
 	-- Discord (bạn có thể đổi link discord dưới đây)
 	HomeTab:CreateButton({
@@ -36,9 +33,6 @@ if game.PlaceId == 126884695634066 then
 			})
 		end,
 	})
-
-	-- Phân cách
-	HomeTab:CreateLabel("----------------")
 
 	-- Version
 	HomeTab:CreateLabel("Version:1.0.0")
