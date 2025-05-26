@@ -5,9 +5,7 @@ local Window = Rayfield:CreateWindow({
 	Name = "Duck Hub - Type: Script Menu",
 	LoadingTitle = "Loading...",
 	LoadingSubtitle = "by Duck",
-	ConfigurationSaving = {
-		Enabled = false
-	},
+	ConfigurationSaving = { Enabled = false },
 	KeySystem = false
 })
 
@@ -40,23 +38,33 @@ HomeTab:CreateLabel("Version: 1.0.0")
 -- Tab Scripts (luôn tạo, nhưng chỉ thêm script nếu đúng game ID)
 local ScriptTab = Window:CreateTab("Scripts", 4483362458)
 
-if game.PlaceId == 126884695634066 then
-	local scripts = {
+local scriptsByPlaceId = {
+	[126884695634066] = {
 		["Speed Hub X"] = [[
 			loadstring(game:HttpGet("https://raw.githubusercontent.com/AhmadV99/Speed-Hub-X/main/Speed%20Hub%20X.lua", true))()
 		]],
 		["No Lag Hub"] = [[
 			loadstring(game:HttpGetAsync("https://raw.githubusercontent.com/NoLag-id/No-Lag-HUB/refs/heads/main/Loader/LoaderV1.lua"))()
 		]]
-	}
-
-if game.PlaceId == 2753915549 then
-	local scripts = {
+	},
+	[2753915549] = {
 		["Speed Hub X"] = [[
 			loadstring(game:HttpGet("https://raw.githubusercontent.com/AhmadV99/Speed-Hub-X/main/Speed%20Hub%20X.lua", true))()
 		]]
+	},
+	[1234567890] = { -- Ví dụ game thứ 3
+		["Script A"] = [[
+			print("Đây là Script A cho game thứ 3")
+		]],
+		["Script B"] = [[
+			print("Đây là Script B cho game thứ 3")
+		]]
 	}
+}
 
+local scripts = scriptsByPlaceId[game.PlaceId]
+
+if scripts then
 	for name, code in pairs(scripts) do
 		ScriptTab:CreateButton({
 			Name = name,
@@ -66,7 +74,6 @@ if game.PlaceId == 2753915549 then
 		})
 	end
 else
-	-- Thông báo trong tab Scripts nếu không đúng game ID
 	ScriptTab:CreateParagraph({
 		Title = "Thông báo",
 		Content = "Các script không khả dụng cho game hiện tại."
@@ -74,9 +81,8 @@ else
 end
 
 -- Tab Games (luôn tạo, liệt kê các tên game)
-local GamesTab = Window:CreateTab("Support Games", 6023426956)  -- Bạn đổi icon ID nếu muốn
+local GamesTab = Window:CreateTab("Support Games", 109528244047465)  -- Bạn đổi icon ID nếu muốn
 
--- Danh sách tên các game
 local gamesList = {
 	"Grow A Garden",
 	"Blox Fruits",
@@ -84,7 +90,6 @@ local gamesList = {
 	"King Legacy"
 }
 
--- Hiển thị tên game trong tab Games
 for _, gameName in ipairs(gamesList) do
 	GamesTab:CreateLabel(gameName)
 end
