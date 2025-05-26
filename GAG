@@ -23,16 +23,17 @@ if game.PlaceId == 126884695634066 then
 
 	-- Discord (bạn có thể đổi link discord dưới đây)
 	HomeTab:CreateButton({
-		Name = "Join Discord",
-		Callback = function()
-			setclipboard("discord.gg/NF6fZapa3U")
-			Rayfield:Notify({
-				Title = "Discord",
-				Content = "Đã sao chép link Discord!",
-				Duration = 4
-			})
-		end,
-	})
+	Name = "Join Discord",
+	Callback = function()
+		setclipboard("discord.gg/NF6fZapa3U")
+		Rayfield:Notify({
+			Title = "Discord",
+			Content = "Đã sao chép link Discord!",
+			Duration = 4,
+			Image = 6031075938
+		})
+	end,
+})
 
 	-- Version
 	HomeTab:CreateLabel("Version:1.0.0")
