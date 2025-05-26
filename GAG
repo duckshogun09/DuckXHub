@@ -1,9 +1,8 @@
 local Rayfield = loadstring(game:HttpGet("https://sirius.menu/rayfield"))()
 
--- Tạo cửa sổ chính
 local Window = Rayfield:CreateWindow({
-	Name = "Script Menu",
-	LoadingTitle = "Đang tải menu...",
+	Name = "Duck Hub - Type: Script Menu",
+	LoadingTitle = "Loading...",
 	LoadingSubtitle = "by Duck",
 	ConfigurationSaving = {
 		Enabled = false
@@ -11,16 +10,17 @@ local Window = Rayfield:CreateWindow({
 	KeySystem = false
 })
 
--- Tab script
 local ScriptTab = Window:CreateTab("Scripts", 4483362458)
 
--- Danh sách script mẫu
 local scripts = {
-	["SpeedxHub"] = [[
+	["Speed Hub X"] = [[
 		loadstring(game:HttpGet("https://raw.githubusercontent.com/AhmadV99/Speed-Hub-X/main/Speed%20Hub%20X.lua", true))()
 	]],
-	["No-Lag Hub"] = [[
+	["No Lag Hub"] = [[
 		loadstring(game:HttpGetAsync("https://raw.githubusercontent.com/NoLag-id/No-Lag-HUB/refs/heads/main/Loader/LoaderV1.lua"))()
+	]],
+	["Speed Hack + 100 Speed"] = [[
+		game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = 100
 	]]
 }
 
@@ -32,34 +32,3 @@ for name, code in pairs(scripts) do
 		end,
 	})
 end
-
--- Tab chỉnh stats
-local PlayerTab = Window:CreateTab("Player Stats", 4483362458)
-
--- Tốc độ chạy (WalkSpeed)
-PlayerTab:CreateSlider({
-	Name = "Tốc độ chạy (WalkSpeed)",
-	Range = {16, 200},
-	Increment = 1,
-	Default = 16,
-	Callback = function(value)
-		local char = game.Players.LocalPlayer.Character
-		if char and char:FindFirstChild("Humanoid") then
-			char.Humanoid.WalkSpeed = value
-		end
-	end,
-})
-
--- Nhảy cao (JumpPower)
-PlayerTab:CreateSlider({
-	Name = "Nhảy cao (JumpPower)",
-	Range = {50, 300},
-	Increment = 1,
-	Default = 50,
-	Callback = function(value)
-		local char = game.Players.LocalPlayer.Character
-		if char and char:FindFirstChild("Humanoid") then
-			char.Humanoid.JumpPower = value
-		end
-	end,
-})
