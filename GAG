@@ -18,9 +18,6 @@ local scripts = {
 	]],
 	["No Lag Hub"] = [[
 		loadstring(game:HttpGetAsync("https://raw.githubusercontent.com/NoLag-id/No-Lag-HUB/refs/heads/main/Loader/LoaderV1.lua"))()
-	]],
-	["Speed Hack + 100 Speed"] = [[
-		game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = 100
 	]]
 }
 
