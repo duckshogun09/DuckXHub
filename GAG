@@ -11,6 +11,31 @@ if game.PlaceId == 126884695634066 then
 		KeySystem = false
 	})
 
+	-- Tạo tab Home
+	local HomeTab = Window:CreateTab("Home")
+
+	-- Thông báo
+	HomeTab:CreateLabel("Thông báo:")
+	HomeTab:CreateParagraph({
+		Title = "Thông báo mới nhất",
+		Content = "Chào mừng bạn đến với Duck Hub! Phiên bản mới đã ra mắt."
+	})
+
+	-- Discord (bạn có thể đổi link discord dưới đây)
+	HomeTab:CreateLabel("Discord:")
+	HomeTab:CreateButton({
+		Name = "Join Discord",
+		Callback = function()
+			setclipboard("discord.gg/NF6fZapa3U")
+			print("Đã sao chép link Discord vào clipboard!")
+		end,
+	})
+
+	-- Version
+	HomeTab:CreateLabel("Version:")
+	HomeTab:CreateLabel("1.0.0")
+
+	-- Tab Scripts
 	local ScriptTab = Window:CreateTab("Scripts", 4483362458)
 
 	local scripts = {
