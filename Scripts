@@ -1,4 +1,3 @@
--- Load GUI luôn, không phụ thuộc game.PlaceId
 local Rayfield = loadstring(game:HttpGet("https://sirius.menu/rayfield"))()
 
 local Window = Rayfield:CreateWindow({
@@ -9,33 +8,28 @@ local Window = Rayfield:CreateWindow({
 	KeySystem = false
 })
 
--- Tab Home
 local HomeTab = Window:CreateTab("Home")
 
--- Thông báo tự động từ GitHub
 local message = game:HttpGet("https://raw.githubusercontent.com/duckshogun09/DuckHub/refs/heads/main/notice.txt")
 HomeTab:CreateParagraph({
-	Title = "Thông báo mới nhất",
+	Title = "Latest announcement",
 	Content = message
 })
 
--- Discord
 HomeTab:CreateButton({
 	Name = "Join Discord",
 	Callback = function()
 		setclipboard("discord.gg/NF6fZapa3U")
 		Rayfield:Notify({
 			Title = "Discord",
-			Content = "Đã sao chép link Discord!",
+			Content = "Discord link copied!",
 			Duration = 4
 		})
 	end,
 })
 
--- Version
 HomeTab:CreateLabel("Version: 1.0.0")
 
--- Tab Scripts (luôn tạo, nhưng chỉ thêm script nếu đúng game ID)
 local ScriptTab = Window:CreateTab("Scripts")
 
 local scriptsByPlaceId = {
@@ -75,13 +69,12 @@ if scripts then
 	end
 else
 	ScriptTab:CreateParagraph({
-		Title = "Thông báo",
-		Content = "Các script không khả dụng cho game hiện tại."
+		Title = "Notification",
+		Content = "Scripts are not available for the current game. See what games the script supports on the Support Games page"
 	})
 end
 
--- Tab Games (luôn tạo, liệt kê các tên game)
-local GamesTab = Window:CreateTab("Support Games")  -- Bạn đổi icon ID nếu muốn
+local GamesTab = Window:CreateTab("Support Games")
 
 local gamesList = {
 	"Grow A Garden",
