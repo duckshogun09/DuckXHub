@@ -1,46 +1,46 @@
-if game.PlaceId == 126884695634066 then
-	local Rayfield = loadstring(game:HttpGet("https://sirius.menu/rayfield"))()
+-- Load GUI luôn, không phụ thuộc game.PlaceId
+local Rayfield = loadstring(game:HttpGet("https://sirius.menu/rayfield"))()
 
-	local Window = Rayfield:CreateWindow({
-		Name = "Duck Hub - Type: Script Menu",
-		LoadingTitle = "Loading...",
-		LoadingSubtitle = "by Duck",
-		ConfigurationSaving = {
-			Enabled = false
-		},
-		KeySystem = false
-	})
+local Window = Rayfield:CreateWindow({
+	Name = "Duck Hub - Type: Script Menu",
+	LoadingTitle = "Loading...",
+	LoadingSubtitle = "by Duck",
+	ConfigurationSaving = {
+		Enabled = false
+	},
+	KeySystem = false
+})
 
-	-- Tạo tab Home
-	local HomeTab = Window:CreateTab("Home", 6031094674)
+-- Tab Home
+local HomeTab = Window:CreateTab("Home", 6031094674)
 
-	-- Thông báo tự động từ GitHub
-	local message = game:HttpGet("https://raw.githubusercontent.com/duckshogun09/DuckHub/refs/heads/main/notice.txt")
-	HomeTab:CreateParagraph({
-		Title = "Thông báo mới nhất",
-		Content = message
-	})
+-- Thông báo tự động từ GitHub
+local message = game:HttpGet("https://raw.githubusercontent.com/duckshogun09/DuckHub/refs/heads/main/notice.txt")
+HomeTab:CreateParagraph({
+	Title = "Thông báo mới nhất",
+	Content = message
+})
 
-	-- Discord (bạn có thể đổi link discord dưới đây)
-	HomeTab:CreateButton({
+-- Discord
+HomeTab:CreateButton({
 	Name = "Join Discord",
 	Callback = function()
 		setclipboard("discord.gg/NF6fZapa3U")
 		Rayfield:Notify({
 			Title = "Discord",
 			Content = "Đã sao chép link Discord!",
-			Duration = 4,
-			Image = 6031075938
+			Duration = 4
 		})
 	end,
 })
 
-	-- Version
-	HomeTab:CreateLabel("Version:1.0.0")
+-- Version
+HomeTab:CreateLabel("Version: 1.0.0")
 
-	-- Tab Scripts
-	local ScriptTab = Window:CreateTab("Scripts", 4483362458)
+-- Tab Scripts (luôn tạo, nhưng chỉ thêm script nếu đúng game ID)
+local ScriptTab = Window:CreateTab("Scripts", 4483362458)
 
+if game.PlaceId == 126884695634066 then
 	local scripts = {
 		["Speed Hub X"] = [[
 			loadstring(game:HttpGet("https://raw.githubusercontent.com/AhmadV99/Speed-Hub-X/main/Speed%20Hub%20X.lua", true))()
@@ -59,5 +59,9 @@ if game.PlaceId == 126884695634066 then
 		})
 	end
 else
-	warn("Không đúng game ID, GUI không được hiển thị.")
+	-- Thông báo trong tab Scripts nếu không đúng game ID
+	ScriptTab:CreateParagraph({
+		Title = "Thông báo",
+		Content = "Các script không khả dụng cho game hiện tại."
+	})
 end
