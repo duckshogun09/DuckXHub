@@ -65,3 +65,19 @@ else
 		Content = "Các script không khả dụng cho game hiện tại."
 	})
 end
+
+-- Tab Games (luôn tạo, liệt kê các tên game)
+local GamesTab = Window:CreateTab("Support Games", 6023426956)  -- Bạn đổi icon ID nếu muốn
+
+-- Danh sách tên các game
+local gamesList = {
+	"Grow A Garden",
+	"Blox Fruits",
+	"Arise Crossover",
+	"King Legacy"
+}
+
+-- Hiển thị tên game trong tab Games
+for _, gameName in ipairs(gamesList) do
+	GamesTab:CreateLabel(gameName)
+end
