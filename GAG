@@ -10,7 +10,7 @@ local Window = Rayfield:CreateWindow({
 })
 
 -- Tab Home
-local HomeTab = Window:CreateTab("Home", 6031094674)
+local HomeTab = Window:CreateTab("Home", 1234567890)
 
 -- Thông báo tự động từ GitHub
 local message = game:HttpGet("https://raw.githubusercontent.com/duckshogun09/DuckHub/refs/heads/main/notice.txt")
@@ -81,7 +81,7 @@ else
 end
 
 -- Tab Games (luôn tạo, liệt kê các tên game)
-local GamesTab = Window:CreateTab("Support Games", 6031288380)  -- Bạn đổi icon ID nếu muốn
+local GamesTab = Window:CreateTab("Support Games", 9876543210)  -- Bạn đổi icon ID nếu muốn
 
 local gamesList = {
 	"Grow A Garden",
