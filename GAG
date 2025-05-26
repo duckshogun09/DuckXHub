@@ -8,29 +8,22 @@ local Window = Rayfield:CreateWindow({
 	ConfigurationSaving = {
 		Enabled = false
 	},
-        Discord = {
-            Enabled = false
-        },
 	KeySystem = false
 })
 
--- Tạo tab
-local ScriptTab = Window:CreateTab("Scripts", 4483362458) -- icon ID
+-- Tab script
+local ScriptTab = Window:CreateTab("Scripts", 4483362458)
 
--- Danh sách script
+-- Danh sách script mẫu
 local scripts = {
 	["Fly Script"] = [[
 		loadstring(game:HttpGet("https://pastebin.com/raw/YOUR_FLY_SCRIPT"))()
 	]],
 	["ESP Script"] = [[
 		loadstring(game:HttpGet("https://pastebin.com/raw/YOUR_ESP_SCRIPT"))()
-	]],
-	["Speed Hack"] = [[
-		game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = 100
 	]]
 }
 
--- Tạo nút cho từng script
 for name, code in pairs(scripts) do
 	ScriptTab:CreateButton({
 		Name = name,
@@ -39,3 +32,34 @@ for name, code in pairs(scripts) do
 		end,
 	})
 end
+
+-- Tab chỉnh stats
+local PlayerTab = Window:CreateTab("Player Stats", 4483362458)
+
+-- Tốc độ chạy (WalkSpeed)
+PlayerTab:CreateSlider({
+	Name = "Tốc độ chạy (WalkSpeed)",
+	Range = {16, 200},
+	Increment = 1,
+	Default = 16,
+	Callback = function(value)
+		local char = game.Players.LocalPlayer.Character
+		if char and char:FindFirstChild("Humanoid") then
+			char.Humanoid.WalkSpeed = value
+		end
+	end,
+})
+
+-- Nhảy cao (JumpPower)
+PlayerTab:CreateSlider({
+	Name = "Nhảy cao (JumpPower)",
+	Range = {50, 300},
+	Increment = 1,
+	Default = 50,
+	Callback = function(value)
+		local char = game.Players.LocalPlayer.Character
+		if char and char:FindFirstChild("Humanoid") then
+			char.Humanoid.JumpPower = value
+		end
+	end,
+})
