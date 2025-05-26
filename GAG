@@ -16,11 +16,11 @@ local ScriptTab = Window:CreateTab("Scripts", 4483362458)
 
 -- Danh sách script mẫu
 local scripts = {
-	["Fly Script"] = [[
+	["SpeedxHub"] = [[
 		loadstring(game:HttpGet("https://pastebin.com/raw/YOUR_FLY_SCRIPT"))()
 	]],
 	["ESP Script"] = [[
-		loadstring(game:HttpGet("https://pastebin.com/raw/YOUR_ESP_SCRIPT"))()
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/AhmadV99/Speed-Hub-X/main/Speed%20Hub%20X.lua", true))()
 	]]
 }
 
