@@ -1,31 +1,35 @@
-local Rayfield = loadstring(game:HttpGet("https://sirius.menu/rayfield"))()
+if game.PlaceId == 126884695634066 then
+	local Rayfield = loadstring(game:HttpGet("https://sirius.menu/rayfield"))()
 
-local Window = Rayfield:CreateWindow({
-	Name = "Duck Hub - Type: Script Menu",
-	LoadingTitle = "Loading...",
-	LoadingSubtitle = "by Duck",
-	ConfigurationSaving = {
-		Enabled = false
-	},
-	KeySystem = false
-})
-
-local ScriptTab = Window:CreateTab("Scripts", 4483362458)
-
-local scripts = {
-	["Speed Hub X"] = [[
-		loadstring(game:HttpGet("https://raw.githubusercontent.com/AhmadV99/Speed-Hub-X/main/Speed%20Hub%20X.lua", true))()
-	]],
-	["No Lag Hub"] = [[
-		loadstring(game:HttpGetAsync("https://raw.githubusercontent.com/NoLag-id/No-Lag-HUB/refs/heads/main/Loader/LoaderV1.lua"))()
-	]]
-}
-
-for name, code in pairs(scripts) do
-	ScriptTab:CreateButton({
-		Name = name,
-		Callback = function()
-			loadstring(code)()
-		end,
+	local Window = Rayfield:CreateWindow({
+		Name = "Duck Hub - Type: Script Menu",
+		LoadingTitle = "Loading...",
+		LoadingSubtitle = "by Duck",
+		ConfigurationSaving = {
+			Enabled = false
+		},
+		KeySystem = false
 	})
+
+	local ScriptTab = Window:CreateTab("Scripts", 4483362458)
+
+	local scripts = {
+		["Speed Hub X"] = [[
+			loadstring(game:HttpGet("https://raw.githubusercontent.com/AhmadV99/Speed-Hub-X/main/Speed%20Hub%20X.lua", true))()
+		]],
+		["No Lag Hub"] = [[
+			loadstring(game:HttpGetAsync("https://raw.githubusercontent.com/NoLag-id/No-Lag-HUB/refs/heads/main/Loader/LoaderV1.lua"))()
+		]]
+	}
+
+	for name, code in pairs(scripts) do
+		ScriptTab:CreateButton({
+			Name = name,
+			Callback = function()
+				loadstring(code)()
+			end,
+		})
+	end
+else
+	warn("Không đúng game ID, GUI không được hiển thị.")
 end
