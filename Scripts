@@ -18,7 +18,7 @@ local Window = Rayfield:CreateWindow({
     KeySystem = false
 })
 
-local HomeTab = Window:CreateTab("Info")
+local HomeTab = Window:CreateTab("ⓘ Info")
 
 local message = game:HttpGet("https://raw.githubusercontent.com/duckshogun09/DuckHub/refs/heads/main/notice.txt")
 HomeTab:CreateParagraph({
@@ -43,7 +43,7 @@ HomeTab:CreateLabel("Anti-AFK: Auto enabled")
 
 HomeTab:CreateLabel("Version: 1.0.0")
 
-local ScriptTab = Window:CreateTab("📜 Scripts")
+local ScriptTab = Window:CreateTab("🔗 Scripts")
 
 local scriptList = {
     ["Speed Hub X"] = [[
@@ -69,7 +69,7 @@ for name, code in pairs(scriptList) do
     })
 end
 
-local ServerTab = Window:CreateTab("Server")
+local ServerTab = Window:CreateTab("🌐 Server")
 
 local playerCountLabel = ServerTab:CreateLabel("Players in the server: " .. tostring(#game.Players:GetPlayers()))
 
