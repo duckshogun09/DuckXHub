@@ -185,17 +185,17 @@ ServerTab:CreateLabel("When you press the button, it will automatically hop serv
 ServerTab:CreateButton({
     Name = "Hop Server",
     Callback = function()
-        local countdown = 5
-        for i = countdown, 1, -1 do
-            Rayfield:Notify({
-                Title = "Hop Server",
-                Content = "Switching server in " .. i .. " seconds...",
-                Duration = 1,
-                Image = 6035047409
-            })
-            task.wait(1)
-        end
         while true do
+            local countdown = 5
+            for i = countdown, 1, -1 do
+                Rayfield:Notify({
+                    Title = "Hop Server",
+                    Content = "Switching server in " .. i .. " seconds...",
+                    Duration = 1,
+                    Image = 6035047409
+                })
+                task.wait(1)
+            end
             local success, err = pcall(function()
                 TPReturner()
             end)
