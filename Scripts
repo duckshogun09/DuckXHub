@@ -88,7 +88,7 @@ end
 
 local ServerTab = Window:CreateTab("Server")
 
--- Hiển thị số người chơi hiện tại
+-- Hiển thị số người chơi trong server
 local playerCountLabel = ServerTab:CreateLabel("Players in the server: " .. tostring(#game.Players:GetPlayers()))
 
 game.Players.PlayerAdded:Connect(function()
@@ -100,75 +100,84 @@ game.Players.PlayerRemoving:Connect(function()
 	playerCountLabel:Set("Players in the server: " .. tostring(#game.Players:GetPlayers()))
 end)
 
--- Nút hop server (tìm và vào server khác trong cùng game)
-ServerTab:CreateButton({
-	Name = "Hop Server",
-	Callback = function()
-		local HttpService = game:GetService("HttpService")
-		local TeleportService = game:GetService("TeleportService")
-		local Players = game:GetService("Players")
+-- Dịch vụ cần thiết
+local HttpService = game:GetService("HttpService")
+local TeleportService = game:GetService("TeleportService")
+local Players = game:GetService("Players")
 
-		local function GetAvailableServer()
-			local serversUrl = "https://games.roblox.com/v1/games/" .. game.PlaceId .. "/servers/Public?sortOrder=2&limit=100"
-			local cursor = ""
-			local tried = {}
+-- Hàm tìm server khác cùng game nhưng khác JobId
+local function GetAvailableServer()
+	local serversUrl = "https://games.roblox.com/v1/games/" .. game.PlaceId .. "/servers/Public?sortOrder=2&limit=100"
+	local cursor = ""
 
-			while true do
-				local success, response = pcall(function()
-					return HttpService:GetAsync(serversUrl .. "&cursor=" .. cursor)
-				end)
+	while true do
+		local success, response = pcall(function()
+			return HttpService:GetAsync(serversUrl .. "&cursor=" .. cursor)
+		end)
 
-				if success then
-					local data = HttpService:JSONDecode(response)
-					if data and data.data then
-						for _, server in ipairs(data.data) do
-							if server.id ~= game.JobId and server.playing < server.maxPlayers and not tried[server.id] then
-								return server.id
-							end
-						end
-						if data.nextPageCursor then
-							cursor = data.nextPageCursor
-							task.wait(0.5)
-						else
-							break
-						end
-					else
-						break
+		if success then
+			local data = HttpService:JSONDecode(response)
+			if data and data.data then
+				for _, server in ipairs(data.data) do
+					if server.id ~= game.JobId and server.playing < server.maxPlayers then
+						return server.id
 					end
+				end
+				if data.nextPageCursor then
+					cursor = data.nextPageCursor
+					task.wait(0.5)
 				else
 					break
 				end
+			else
+				break
 			end
-
-			return nil
-		end
-
-		local serverId = GetAvailableServer()
-		if serverId then
-			TeleportService:TeleportToPlaceInstance(game.PlaceId, serverId, Players.LocalPlayer)
 		else
-			Rayfield:Notify({
-				Title = "Server Hop",
-				Content = "No suitable server found!",
-				Duration = 5
-			})
+			break
 		end
+	end
+
+	return nil
+end
+
+-- Hàm hop server
+local function HopToAnotherServer()
+	local serverId = GetAvailableServer()
+	if serverId then
+		TeleportService:TeleportToPlaceInstance(game.PlaceId, serverId, Players.LocalPlayer)
+	else
+		Rayfield:Notify({
+			Title = "Server Hop",
+			Content = "No suitable server found!",
+			Duration = 5
+		})
+	end
+end
+
+-- 🔁 Auto hop sau vài giây khi load game
+task.delay(3, function()
+	HopToAnotherServer()
+end)
+
+-- Nút hop server thủ công
+ServerTab:CreateButton({
+	Name = "Hop Server",
+	Callback = function()
+		HopToAnotherServer()
 	end,
 })
 
--- Nhập JobId để vào server cụ thể
+-- Input nhập JobId để vào server thủ công
 ServerTab:CreateInput({
 	Name = "Join Server by JobId",
 	PlaceholderText = "Paste JobId here",
 	RemoveTextAfterFocusLost = false,
 	Callback = function(jobId)
-		local TeleportService = game:GetService("TeleportService")
-		local Players = game:GetService("Players")
 		TeleportService:TeleportToPlaceInstance(game.PlaceId, jobId, Players.LocalPlayer)
 	end
 })
 
--- Nút sao chép JobId hiện tại
+-- Nút copy JobId hiện tại
 ServerTab:CreateButton({
 	Name = "Copy current JobId",
 	Callback = function()
