@@ -192,7 +192,7 @@ end
 
 SettingTab:CreateToggle({
     Name = "Anti-AFK",
-    Flag = "AntiAFK", -- Thêm Flag để Rayfield lưu trạng thái
+    Flag = "AntiAFK",
     CurrentValue = false,
     Callback = function(enabled)
         if enabled then
