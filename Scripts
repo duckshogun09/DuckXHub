@@ -18,7 +18,7 @@ local Window = Rayfield:CreateWindow({
     KeySystem = false
 })
 
-local HomeTab = Window:CreateTab("ⓘ Info")
+local HomeTab = Window:CreateTab("📢 Info")
 
 local message = game:HttpGet("https://raw.githubusercontent.com/duckshogun09/DuckHub/refs/heads/main/notice.txt")
 HomeTab:CreateParagraph({
