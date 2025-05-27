@@ -89,15 +89,15 @@ end
 
 local ServerTab = Window:CreateTab("Server")
 
-local playerCountLabel = ServerTab:CreateLabel("Người chơi trong server: " .. tostring(#game.Players:GetPlayers()))
+local playerCountLabel = ServerTab:CreateLabel("Players in the server: " .. tostring(#game.Players:GetPlayers()))
 
 game.Players.PlayerAdded:Connect(function()
-	playerCountLabel:Set("Người chơi trong server: " .. tostring(#game.Players:GetPlayers()))
+	playerCountLabel:Set("Players in the server: " .. tostring(#game.Players:GetPlayers()))
 end)
 
 game.Players.PlayerRemoving:Connect(function()
 	task.wait(0.5)
-	playerCountLabel:Set("Người chơi trong server: " .. tostring(#game.Players:GetPlayers()))
+	playerCountLabel:Set("Players in the server: " .. tostring(#game.Players:GetPlayers()))
 end)
 
 ServerTab:CreateButton({
@@ -132,7 +132,7 @@ ServerTab:CreateButton({
 		else
 			Rayfield:Notify({
 				Title = "Server Hop",
-				Content = "Không tìm thấy server phù hợp!",
+				Content = "No suitable server found!",
 				Duration = 5
 			})
 		end
@@ -151,12 +151,12 @@ ServerTab:CreateInput({
 })
 
 ServerTab:CreateButton({
-	Name = "Copy JobId hiện tại",
+	Name = "Copy current JobId",
 	Callback = function()
 		setclipboard(game.JobId)
 		Rayfield:Notify({
 			Title = "JobId Copied",
-			Content = "Đã copy JobId của server hiện tại vào clipboard!",
+			Content = "Copied the JobId of the current server to the clipboard!",
 			Duration = 4
 		})
 	end,
