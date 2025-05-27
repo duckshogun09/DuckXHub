@@ -1,11 +1,15 @@
 local Rayfield = loadstring(game:HttpGet("https://sirius.menu/rayfield"))()
 
 local Window = Rayfield:CreateWindow({
-	Name = "Duck Hub - Type: Script Menu",
-	LoadingTitle = "Loading...",
-	LoadingSubtitle = "by Duck",
-	ConfigurationSaving = { Enabled = false },
-	KeySystem = false
+    Name = "DuckX Hub - Type: Script Menu",
+    LoadingTitle = "Loading...",
+    LoadingSubtitle = "by Duck",
+    ConfigurationSaving = {
+        Enabled = true,
+        FolderName = "DuckXHub",
+        FileName = "config"
+    },
+    KeySystem = false
 })
 
 local HomeTab = Window:CreateTab("Home")
