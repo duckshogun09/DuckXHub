@@ -12,7 +12,7 @@ end
 startAntiAfk()
 
 local Window = Rayfield:CreateWindow({
-    Name = "DuckX Hub - Type: Script Menu",
+    Name = "DuckX Hub - Type: Script Menu V1.0.3",
     LoadingTitle = "Loading...",
     LoadingSubtitle = "by Duck",
     KeySystem = false
@@ -40,8 +40,6 @@ HomeTab:CreateButton({
 })
 
 HomeTab:CreateLabel("Anti-AFK: Auto enabled")
-
-HomeTab:CreateLabel("Version: 1.0.0")
 
 local ScriptTab = Window:CreateTab("🔗 Scripts")
 
