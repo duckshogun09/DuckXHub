@@ -34,10 +34,10 @@ HomeTab:CreateButton({
 HomeTab:CreateParagraph({
 	Title = "Supported Games",
 	Content = table.concat({
-		"• Grow A Garden",
-		"• Blox Fruits",
-		"• Arise Crossover",
-		"• King Legacy"
+		"Grow A Garden",
+		"Blox Fruits",
+		"Arise Crossover",
+		"King Legacy"
 	}, "\n")
 })
 
