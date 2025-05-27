@@ -4,7 +4,7 @@ local Window = Rayfield:CreateWindow({
 	Name = "Duck Hub - Type: Script Menu",
 	LoadingTitle = "Loading...",
 	LoadingSubtitle = "by Duck",
-	ConfigurationSaving = { Enabled = false },
+	ConfigurationSaving = { Enabled = true },
 	KeySystem = false
 })
 
