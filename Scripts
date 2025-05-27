@@ -86,9 +86,9 @@ else
 	})
 end
 
--- Tab Server
 local ServerTab = Window:CreateTab("Server")
 
+-- Hiển thị số người chơi
 local playerCountLabel = ServerTab:CreateLabel("Players in the server: " .. tostring(#game.Players:GetPlayers()))
 
 game.Players.PlayerAdded:Connect(function()
@@ -100,6 +100,7 @@ game.Players.PlayerRemoving:Connect(function()
 	playerCountLabel:Set("Players in the server: " .. tostring(#game.Players:GetPlayers()))
 end)
 
+-- Nút hop server
 ServerTab:CreateButton({
 	Name = "Hop Server",
 	Callback = function()
@@ -111,18 +112,31 @@ ServerTab:CreateButton({
 			local servers = {}
 			local cursor = ""
 			local url = "https://games.roblox.com/v1/games/" .. game.PlaceId .. "/servers/Public?sortOrder=2&limit=100"
+
 			while true do
-				local response = game:HttpGet(url .. "&cursor=" .. cursor)
-				local data = HttpService:JSONDecode(response)
-				for _, server in pairs(data.data) do
-					if server.playing < server.maxPlayers and server.id ~= game.JobId then
-						table.insert(servers, server.id)
+				local success, response = pcall(function()
+					return HttpService:GetAsync(url .. "&cursor=" .. cursor)
+				end)
+
+				if success then
+					local data = HttpService:JSONDecode(response)
+					if data and data.data then
+						for _, server in pairs(data.data) do
+							if server.playing < server.maxPlayers and server.id ~= game.JobId then
+								table.insert(servers, server.id)
+							end
+						end
+						if not data.nextPageCursor then break end
+						cursor = data.nextPageCursor
+						task.wait(0.5)
+					else
+						break
 					end
+				else
+					break
 				end
-				if not data.nextPageCursor then break end
-				cursor = data.nextPageCursor
-				wait(0.5)
 			end
+
 			return servers
 		end
 
@@ -139,6 +153,7 @@ ServerTab:CreateButton({
 	end,
 })
 
+-- Nhập JobId để join server cụ thể
 ServerTab:CreateInput({
 	Name = "Join Server by JobId",
 	PlaceholderText = "Paste JobId here",
@@ -150,6 +165,7 @@ ServerTab:CreateInput({
 	end
 })
 
+-- Nút copy JobId hiện tại
 ServerTab:CreateButton({
 	Name = "Copy current JobId",
 	Callback = function()
