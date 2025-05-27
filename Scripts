@@ -132,53 +132,8 @@ local function TPReturner()
     end
 end
 
-local teleporting = false
-
-local function StartTeleportLoop()
-    if teleporting then return end
-    teleporting = true
-
-    task.spawn(function()
-        while teleporting do
-            pcall(function()
-                TPReturner()
-                if foundAnything ~= "" then
-                    TPReturner()
-                end
-            end)
-            task.wait(5)
-        end
-    end)
-end
-
-local function StopTeleportLoop()
-    teleporting = false
-end
-
-ServerTab:CreateToggle({
-    Name = "Auto Hop Server",
-    CurrentValue = false,
-    Callback = function(Value)
-        if Value then
-            StartTeleportLoop()
-            Rayfield:Notify({
-                Title = "Server Hop",
-                Content = "Started auto hop!",
-                Duration = 4
-            })
-        else
-            StopTeleportLoop()
-            Rayfield:Notify({
-                Title = "Server Hop",
-                Content = "Stopped auto hop.",
-                Duration = 4
-            })
-        end
-    end,
-})
-
 ServerTab:CreateButton({
-    Name = "Hop Server Once",
+    Name = "Hop Server",
     Callback = function()
         pcall(function()
             TPReturner()
