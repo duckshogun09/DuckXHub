@@ -43,8 +43,7 @@ HomeTab:CreateLabel("Anti-AFK: Auto enabled")
 
 HomeTab:CreateLabel("Version: 1.0.0")
 
-
-local ScriptTab = Window:CreateTab("Scripts")
+local ScriptTab = Window:CreateTab("📜 Scripts")
 
 local scriptList = {
     ["Speed Hub X"] = [[
@@ -61,42 +60,14 @@ local scriptList = {
     ]]
 }
 
-local selectedScriptName = nil
-local scriptContentParagraph = nil
-
-ScriptTab:CreateDropdown({
-    Name = "Select Script",
-    Options = (function()
-        local t = {}
-        for k in pairs(scriptList) do table.insert(t, k) end
-        return t
-    end)(),
-    Callback = function(selected)
-        selectedScriptName = selected
-        if scriptContentParagraph then
-            scriptContentParagraph:SetContent(scriptList[selectedScriptName])
-        else
-            scriptContentParagraph = ScriptTab:CreateParagraph({
-                Title = "Script Content",
-                Content = scriptList[selectedScriptName]
-            })
+for name, code in pairs(scriptList) do
+    ScriptTab:CreateButton({
+        Name = name,
+        Callback = function()
+            loadstring(code)()
         end
-    end
-})
-
-ScriptTab:CreateButton({
-    Name = "Run Script",
-    Callback = function()
-        if selectedScriptName then
-            loadstring(scriptList[selectedScriptName])()
-        else
-            ScriptTab:CreateNotification({
-                Title = "Notification",
-                Content = "You haven't selected any script!"
-            })
-        end
-    end
-})
+    })
+end
 
 local ServerTab = Window:CreateTab("Server")
 
