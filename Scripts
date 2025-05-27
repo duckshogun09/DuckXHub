@@ -1,14 +1,20 @@
 local Rayfield = loadstring(game:HttpGet("https://sirius.menu/rayfield"))()
 
+local function startAntiAfk()
+    local vu = game:GetService("VirtualUser")
+    game.Players.LocalPlayer.Idled:Connect(function()
+        vu:Button2Down(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
+        task.wait(1)
+        vu:Button2Up(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
+    end)
+end
+
+startAntiAfk()
+
 local Window = Rayfield:CreateWindow({
     Name = "DuckX Hub - Type: Script Menu",
     LoadingTitle = "Loading...",
     LoadingSubtitle = "by Duck",
-    ConfigurationSaving = {
-        Enabled = true,
-        FolderName = "DuckXHub",
-        FileName = "config"
-    },
     KeySystem = false
 })
 
@@ -16,78 +22,79 @@ local HomeTab = Window:CreateTab("Home")
 
 local message = game:HttpGet("https://raw.githubusercontent.com/duckshogun09/DuckHub/refs/heads/main/notice.txt")
 HomeTab:CreateParagraph({
-	Title = "Latest Announcement",
-	Content = message
+    Title = "Latest Announcement",
+    Content = message
 })
 
 HomeTab:CreateLabel("Version: 1.0.0")
 
 HomeTab:CreateButton({
-	Name = "Join Discord",
-	Callback = function()
-		setclipboard("discord.gg/NF6fZapa3U")
-		Rayfield:Notify({
-			Title = "Discord",
-			Content = "Discord link copied!",
-			Duration = 4,
-			Image = 6031075938
-		})
-	end,
+    Name = "Join Discord",
+    Callback = function()
+        setclipboard("discord.gg/NF6fZapa3U")
+        Rayfield:Notify({
+            Title = "Discord",
+            Content = "Discord link copied!",
+            Duration = 4,
+            Image = 6031075938
+        })
+    end,
 })
 
 HomeTab:CreateParagraph({
-	Title = "Supported Games",
-	Content = table.concat({
-		"• Grow A Garden",
-		"• Blox Fruits",
-		"• Arise Crossover",
-		"• King Legacy"
-	}, "\n")
+    Title = "Supported Games",
+    Content = table.concat({
+        "• Grow A Garden",
+        "• Blox Fruits",
+        "• Arise Crossover",
+        "• King Legacy"
+    }, "\n")
 })
 
+HomeTab:CreateLabel("Anti-AFK: Đã bật tự động khi chạy script")
 
 local ScriptTab = Window:CreateTab("Scripts")
 
 local scriptsByPlaceId = {
-	[126884695634066] = {
-		["Speed Hub X"] = [[
-			loadstring(game:HttpGet("https://raw.githubusercontent.com/AhmadV99/Speed-Hub-X/main/Speed%20Hub%20X.lua", true))()
-		]],
-		["No Lag Hub"] = [[
-			loadstring(game:HttpGetAsync("https://raw.githubusercontent.com/NoLag-id/No-Lag-HUB/refs/heads/main/Loader/LoaderV1.lua"))()
-		]]
-	},
-	[2753915549] = {
-		["Speed Hub X"] = [[
-			loadstring(game:HttpGet("https://raw.githubusercontent.com/AhmadV99/Speed-Hub-X/main/Speed%20Hub%20X.lua", true))()
-		]]
-	},
-	[1234567890] = {
-		["Script A"] = [[
-			print("Đây là Script A cho game thứ 3")
-		]],
-		["Script B"] = [[
-			print("Đây là Script B cho game thứ 3")
-		]]
-	}
+    [126884695634066] = {
+        ["Speed Hub X"] = [[
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/AhmadV99/Speed-Hub-X/main/Speed%20Hub%20X.lua", true))()
+        ]],
+        ["No Lag Hub"] = [[
+            loadstring(game:HttpGetAsync("https://raw.githubusercontent.com/NoLag-id/No-Lag-HUB/refs/heads/main/Loader/LoaderV1.lua"))()
+        ]]
+    },
+    [2753915549] = {
+        ["Speed Hub X"] = [[
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/AhmadV99/Speed-Hub-X/main/Speed%20Hub%20X.lua", true))()
+        ]]
+    },
+    [1234567890] = {
+        ["Script A"] = [[
+            print("Đây là Script A cho game thứ 3")
+        ]],
+        ["Script B"] = [[
+            print("Đây là Script B cho game thứ 3")
+        ]]
+    }
 }
 
 local scripts = scriptsByPlaceId[game.PlaceId]
 
 if scripts then
-	for name, code in pairs(scripts) do
-		ScriptTab:CreateButton({
-			Name = name,
-			Callback = function()
-				loadstring(code)()
-			end,
-		})
-	end
+    for name, code in pairs(scripts) do
+        ScriptTab:CreateButton({
+            Name = name,
+            Callback = function()
+                loadstring(code)()
+            end,
+        })
+    end
 else
-	ScriptTab:CreateParagraph({
-		Title = "Notification",
-		Content = "Scripts are not available for the current game. See what games the script supports in the Home tab."
-	})
+    ScriptTab:CreateParagraph({
+        Title = "Notification",
+        Content = "Scripts are not available for the current game. See what games the script supports in the Home tab."
+    })
 end
 
 local ServerTab = Window:CreateTab("Server")
@@ -139,12 +146,21 @@ end
 ServerTab:CreateButton({
     Name = "Hop Server",
     Callback = function()
-        pcall(function()
-            TPReturner()
-            if foundAnything ~= "" then
+        while true do
+            local success, err = pcall(function()
                 TPReturner()
+            end)
+            if not success then
+                Rayfield:Notify({
+                    Title = "Error",
+                    Content = tostring(err),
+                    Duration = 4,
+                    Image = 6035047409
+                })
+                break
             end
-        end)
+            task.wait(5)
+        end
     end,
 })
 
@@ -165,40 +181,7 @@ ServerTab:CreateButton({
             Title = "JobId Copied",
             Content = "Copied the JobId of the current server to the clipboard!",
             Duration = 4,
-            Image = 6035047409
+            Image = 6031075938
         })
-    end,
-})
-
-local SettingTab = Window:CreateTab("Setting")
-local antiAfkConnection = nil
-
-local function startAntiAfk()
-    if antiAfkConnection then return end
-    local vu = game:GetService("VirtualUser")
-    antiAfkConnection = game.Players.LocalPlayer.Idled:Connect(function()
-        vu:Button2Down(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
-        task.wait(1)
-        vu:Button2Up(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
-    end)
-end
-
-local function stopAntiAfk()
-    if antiAfkConnection then
-        antiAfkConnection:Disconnect()
-        antiAfkConnection = nil
-    end
-end
-
-SettingTab:CreateToggle({
-    Name = "Anti-AFK",
-    Flag = "AntiAFK",
-    CurrentValue = false,
-    Callback = function(enabled)
-        if enabled then
-            startAntiAfk()
-        else
-            stopAntiAfk()
-        end
     end,
 })
