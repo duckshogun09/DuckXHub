@@ -18,17 +18,13 @@ local Window = Rayfield:CreateWindow({
     KeySystem = false
 })
 
-local HomeTab = Window:CreateTab("Home")
+local HomeTab = Window:CreateTab("Info")
 
 local message = game:HttpGet("https://raw.githubusercontent.com/duckshogun09/DuckHub/refs/heads/main/notice.txt")
 HomeTab:CreateParagraph({
     Title = "Latest Announcement",
     Content = message
 })
-
-HomeTab:CreateLabel("Anti-AFK: Auto enabled")
-
-HomeTab:CreateLabel("Version: 1.0.0")
 
 HomeTab:CreateButton({
     Name = "Join Discord",
@@ -43,60 +39,64 @@ HomeTab:CreateButton({
     end,
 })
 
-HomeTab:CreateParagraph({
-    Title = "Supported Games",
-    Content = table.concat({
-        "• Grow A Garden",
-        "• Blox Fruits",
-        "• Arise Crossover",
-        "• King Legacy"
-    }, "\n")
-})
+HomeTab:CreateLabel("Anti-AFK: Auto enabled")
+
+HomeTab:CreateLabel("Version: 1.0.0")
 
 
 local ScriptTab = Window:CreateTab("Scripts")
 
-local scriptsByPlaceId = {
-    [126884695634066] = {
-        ["Speed Hub X"] = [[
-            loadstring(game:HttpGet("https://raw.githubusercontent.com/AhmadV99/Speed-Hub-X/main/Speed%20Hub%20X.lua", true))()
-        ]],
-        ["No Lag Hub"] = [[
-            loadstring(game:HttpGetAsync("https://raw.githubusercontent.com/NoLag-id/No-Lag-HUB/refs/heads/main/Loader/LoaderV1.lua"))()
-        ]]
-    },
-    [2753915549] = {
-        ["Speed Hub X"] = [[
-            loadstring(game:HttpGet("https://raw.githubusercontent.com/AhmadV99/Speed-Hub-X/main/Speed%20Hub%20X.lua", true))()
-        ]]
-    },
-    [1234567890] = {
-        ["Script A"] = [[
-            print("Đây là Script A cho game thứ 3")
-        ]],
-        ["Script B"] = [[
-            print("Đây là Script B cho game thứ 3")
-        ]]
-    }
+local scriptList = {
+    ["Speed Hub X"] = [[
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/AhmadV99/Speed-Hub-X/main/Speed%20Hub%20X.lua", true))()
+    ]],
+    ["No Lag Hub"] = [[
+        loadstring(game:HttpGetAsync("https://raw.githubusercontent.com/NoLag-id/No-Lag-HUB/refs/heads/main/Loader/LoaderV1.lua"))()
+    ]],
+    ["Script A"] = [[
+        print("This is Script A for the third game")
+    ]],
+    ["Script B"] = [[
+        print("This is Script B for the third game")
+    ]]
 }
 
-local scripts = scriptsByPlaceId[game.PlaceId]
+local selectedScriptName = nil
+local scriptContentParagraph = nil
 
-if scripts then
-    for name, code in pairs(scripts) do
-        ScriptTab:CreateButton({
-            Name = name,
-            Callback = function()
-                loadstring(code)()
-            end,
-        })
+ScriptTab:CreateDropdown({
+    Name = "Select Script",
+    Options = (function()
+        local t = {}
+        for k in pairs(scriptList) do table.insert(t, k) end
+        return t
+    end)(),
+    Callback = function(selected)
+        selectedScriptName = selected
+        if scriptContentParagraph then
+            scriptContentParagraph:SetContent(scriptList[selectedScriptName])
+        else
+            scriptContentParagraph = ScriptTab:CreateParagraph({
+                Title = "Script Content",
+                Content = scriptList[selectedScriptName]
+            })
+        end
     end
-else
-    ScriptTab:CreateParagraph({
-        Title = "Notification",
-        Content = "Scripts are not available for the current game. See what games the script supports in the Home tab."
-    })
-end
+})
+
+ScriptTab:CreateButton({
+    Name = "Run Script",
+    Callback = function()
+        if selectedScriptName then
+            loadstring(scriptList[selectedScriptName])()
+        else
+            ScriptTab:CreateNotification({
+                Title = "Notification",
+                Content = "You haven't selected any script!"
+            })
+        end
+    end
+})
 
 local ServerTab = Window:CreateTab("Server")
 
