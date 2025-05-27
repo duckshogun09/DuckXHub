@@ -86,3 +86,55 @@ local gamesList = {
 for _, gameName in ipairs(gamesList) do
 	GamesTab:CreateLabel(gameName)
 end
+
+local ServerTab = Window:CreateTab("Server")
+
+ServerTab:CreateButton({
+	Name = "Hop Server",
+	Callback = function()
+		local HttpService = game:GetService("HttpService")
+		local TeleportService = game:GetService("TeleportService")
+		local Players = game:GetService("Players")
+
+		local function GetServers()
+			local servers = {}
+			local cursor = ""
+			local url = "https://games.roblox.com/v1/games/" .. game.PlaceId .. "/servers/Public?sortOrder=2&limit=100"
+			while true do
+				local response = game:HttpGet(url .. "&cursor=" .. cursor)
+				local data = HttpService:JSONDecode(response)
+				for _, server in pairs(data.data) do
+					if server.playing < server.maxPlayers and server.id ~= game.JobId then
+						table.insert(servers, server.id)
+					end
+				end
+				if not data.nextPageCursor then break end
+				cursor = data.nextPageCursor
+				wait(0.5)
+			end
+			return servers
+		end
+
+		local servers = GetServers()
+		if #servers > 0 then
+			TeleportService:TeleportToPlaceInstance(game.PlaceId, servers[math.random(1, #servers)], Players.LocalPlayer)
+		else
+			Rayfield:Notify({
+				Title = "Server Hop",
+				Content = "No available servers found!",
+				Duration = 5
+			})
+		end
+	end,
+})
+
+ServerTab:CreateInput({
+	Name = "Join Server by JobId",
+	PlaceholderText = "Paste JobId here",
+	RemoveTextAfterFocusLost = false,
+	Callback = function(jobId)
+		local TeleportService = game:GetService("TeleportService")
+		local Players = game:GetService("Players")
+		TeleportService:TeleportToPlaceInstance(game.PlaceId, jobId, Players.LocalPlayer)
+	end
+})
