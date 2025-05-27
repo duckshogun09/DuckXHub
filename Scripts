@@ -180,35 +180,44 @@ local function TPReturner()
     end
 end
 
-ServerTab:CreateLabel("When you press the button, it will automatically hop servers and will not stop until you join a different server.")
+ServerTab:CreateLabel("Enable to automatically hop servers until you join a different server.")
 
-ServerTab:CreateButton({
-    Name = "Hop Server",
-    Callback = function()
-        while true do
-            local countdown = 5
-            for i = countdown, 1, -1 do
-                Rayfield:Notify({
-                    Title = "Hop Server",
-                    Content = "Switching server in " .. i .. " seconds...",
-                    Duration = 1,
-                    Image = 6035047409
-                })
-                task.wait(1)
-            end
-            local success, err = pcall(function()
-                TPReturner()
+local autoHop = false
+
+ServerTab:CreateToggle({
+    Name = "Auto Hop Server",
+    CurrentValue = false,
+    Callback = function(enabled)
+        autoHop = enabled
+        if autoHop then
+            task.spawn(function()
+                while autoHop do
+                    local countdown = 5
+                    for i = countdown, 1, -1 do
+                        Rayfield:Notify({
+                            Title = "Auto Hop Server",
+                            Content = "Switching server in " .. i .. " seconds...",
+                            Duration = 1,
+                            Image = 6035047409
+                        })
+                        task.wait(1)
+                        if not autoHop then return end
+                    end
+                    local success, err = pcall(function()
+                        TPReturner()
+                    end)
+                    if not success then
+                        Rayfield:Notify({
+                            Title = "Error",
+                            Content = tostring(err),
+                            Duration = 4,
+                            Image = 6035047409
+                        })
+                        break
+                    end
+                    task.wait(5)
+                end
             end)
-            if not success then
-                Rayfield:Notify({
-                    Title = "Error",
-                    Content = tostring(err),
-                    Duration = 4,
-                    Image = 6035047409
-                })
-                break
-            end
-            task.wait(5)
         end
     end,
 })
