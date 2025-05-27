@@ -88,7 +88,7 @@ end
 
 local ServerTab = Window:CreateTab("Server")
 
--- Hiển thị số người chơi trong server
+-- Hiển thị số người chơi
 local playerCountLabel = ServerTab:CreateLabel("Players in the server: " .. tostring(#game.Players:GetPlayers()))
 
 game.Players.PlayerAdded:Connect(function()
@@ -100,19 +100,21 @@ game.Players.PlayerRemoving:Connect(function()
 	playerCountLabel:Set("Players in the server: " .. tostring(#game.Players:GetPlayers()))
 end)
 
--- Dịch vụ cần thiết
+-- Dịch vụ
 local HttpService = game:GetService("HttpService")
 local TeleportService = game:GetService("TeleportService")
 local Players = game:GetService("Players")
 
--- Hàm tìm server khác cùng game nhưng khác JobId
-local function GetAvailableServer()
-	local serversUrl = "https://games.roblox.com/v1/games/" .. game.PlaceId .. "/servers/Public?sortOrder=2&limit=100"
+-- Tìm server ít người nhất
+local function GetLeastPopulatedServer()
+	local leastPlayerCount = math.huge
+	local targetServerId = nil
 	local cursor = ""
+	local url = "https://games.roblox.com/v1/games/" .. game.PlaceId .. "/servers/Public?sortOrder=2&limit=100"
 
 	while true do
 		local success, response = pcall(function()
-			return HttpService:GetAsync(serversUrl .. "&cursor=" .. cursor)
+			return HttpService:GetAsync(url .. "&cursor=" .. cursor)
 		end)
 
 		if success then
@@ -120,12 +122,15 @@ local function GetAvailableServer()
 			if data and data.data then
 				for _, server in ipairs(data.data) do
 					if server.id ~= game.JobId and server.playing < server.maxPlayers then
-						return server.id
+						if server.playing < leastPlayerCount then
+							leastPlayerCount = server.playing
+							targetServerId = server.id
+						end
 					end
 				end
 				if data.nextPageCursor then
 					cursor = data.nextPageCursor
-					task.wait(0.5)
+					task.wait(0.3)
 				else
 					break
 				end
@@ -137,37 +142,37 @@ local function GetAvailableServer()
 		end
 	end
 
-	return nil
+	return targetServerId
 end
 
--- Hàm hop server
-local function HopToAnotherServer()
-	local serverId = GetAvailableServer()
+-- Hàm hop server ít người nhất
+local function HopToLeastPopulatedServer()
+	local serverId = GetLeastPopulatedServer()
 	if serverId then
 		TeleportService:TeleportToPlaceInstance(game.PlaceId, serverId, Players.LocalPlayer)
 	else
 		Rayfield:Notify({
 			Title = "Server Hop",
-			Content = "No suitable server found!",
+			Content = "No low-player server found!",
 			Duration = 5
 		})
 	end
 end
 
--- 🔁 Auto hop sau vài giây khi load game
+-- 🔁 Tự động hop sau 3 giây
 task.delay(3, function()
-	HopToAnotherServer()
+	HopToLeastPopulatedServer()
 end)
 
--- Nút hop server thủ công
+-- Nút hop thủ công
 ServerTab:CreateButton({
-	Name = "Hop Server",
+	Name = "Hop Server (least players)",
 	Callback = function()
-		HopToAnotherServer()
+		HopToLeastPopulatedServer()
 	end,
 })
 
--- Input nhập JobId để vào server thủ công
+-- Input JobId để join
 ServerTab:CreateInput({
 	Name = "Join Server by JobId",
 	PlaceholderText = "Paste JobId here",
@@ -177,7 +182,7 @@ ServerTab:CreateInput({
 	end
 })
 
--- Nút copy JobId hiện tại
+-- Copy JobId hiện tại
 ServerTab:CreateButton({
 	Name = "Copy current JobId",
 	Callback = function()
