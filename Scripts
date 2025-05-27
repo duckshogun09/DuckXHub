@@ -104,75 +104,137 @@ end)
 local HttpService = game:GetService("HttpService")
 local TeleportService = game:GetService("TeleportService")
 local Players = game:GetService("Players")
+local PlaceID = game.PlaceId
 
--- Tìm server ít người nhất
-local function GetLeastPopulatedServer()
-	local leastPlayerCount = math.huge
-	local targetServerId = nil
-	local cursor = ""
-	local url = "https://games.roblox.com/v1/games/" .. game.PlaceId .. "/servers/Public?sortOrder=2&limit=100"
+-- Khởi tạo file và dữ liệu nhớ server đã từng join
+local AllIDs = {}
+local foundAnything = ""
+local actualHour = os.date("!*t").hour
 
-	while true do
-		local success, response = pcall(function()
-			return HttpService:GetAsync(url .. "&cursor=" .. cursor)
-		end)
-
-		if success then
-			local data = HttpService:JSONDecode(response)
-			if data and data.data then
-				for _, server in ipairs(data.data) do
-					if server.id ~= game.JobId and server.playing < server.maxPlayers then
-						if server.playing < leastPlayerCount then
-							leastPlayerCount = server.playing
-							targetServerId = server.id
-						end
-					end
-				end
-				if data.nextPageCursor then
-					cursor = data.nextPageCursor
-					task.wait(0.3)
-				else
-					break
-				end
-			else
-				break
-			end
-		else
-			break
-		end
-	end
-
-	return targetServerId
-end
-
--- Hàm hop server ít người nhất
-local function HopToLeastPopulatedServer()
-	local serverId = GetLeastPopulatedServer()
-	if serverId then
-		TeleportService:TeleportToPlaceInstance(game.PlaceId, serverId, Players.LocalPlayer)
-	else
-		Rayfield:Notify({
-			Title = "Server Hop",
-			Content = "No low-player server found!",
-			Duration = 5
-		})
-	end
-end
-
--- 🔁 Tự động hop sau 3 giây
-task.delay(3, function()
-	HopToLeastPopulatedServer()
+local File = pcall(function()
+	AllIDs = HttpService:JSONDecode(readfile("NotSameServers.json"))
 end)
 
--- Nút hop thủ công
+if not File then
+	table.insert(AllIDs, actualHour)
+	writefile("NotSameServers.json", HttpService:JSONEncode(AllIDs))
+end
+
+-- Hàm tìm server mới để teleport (tránh server đã join)
+local function TPReturner()
+	local Site
+	if foundAnything == "" then
+		Site = HttpService:JSONDecode(game:HttpGet('https://games.roblox.com/v1/games/' .. PlaceID .. '/servers/Public?sortOrder=Asc&limit=100'))
+	else
+		Site = HttpService:JSONDecode(game:HttpGet('https://games.roblox.com/v1/games/' .. PlaceID .. '/servers/Public?sortOrder=Asc&limit=100&cursor=' .. foundAnything))
+	end
+
+	if Site.nextPageCursor and Site.nextPageCursor ~= "null" and Site.nextPageCursor ~= nil then
+		foundAnything = Site.nextPageCursor
+	else
+		foundAnything = ""
+	end
+
+	local num = 0
+	for i,v in pairs(Site.data) do
+		local Possible = true
+		local ID = tostring(v.id)
+
+		if tonumber(v.maxPlayers) > tonumber(v.playing) then
+			for _,Existing in pairs(AllIDs) do
+				if num ~= 0 then
+					if ID == tostring(Existing) then
+						Possible = false
+						break
+					end
+				else
+					if tonumber(actualHour) ~= tonumber(Existing) then
+						local delFile = pcall(function()
+							delfile("NotSameServers.json")
+							AllIDs = {}
+							table.insert(AllIDs, actualHour)
+						end)
+					end
+				end
+				num = num + 1
+			end
+			if Possible then
+				table.insert(AllIDs, ID)
+				pcall(function()
+					writefile("NotSameServers.json", HttpService:JSONEncode(AllIDs))
+					TeleportService:TeleportToPlaceInstance(PlaceID, ID, Players.LocalPlayer)
+				end)
+				wait(4)
+				break
+			end
+		end
+	end
+end
+
+-- Vòng lặp tự động hop server
+local teleporting = false
+
+local function StartTeleportLoop()
+	if teleporting then return end
+	teleporting = true
+
+	task.spawn(function()
+		while teleporting do
+			pcall(function()
+				TPReturner()
+				if foundAnything ~= "" then
+					TPReturner()
+				end
+			end)
+			task.wait(5)
+		end
+	end)
+end
+
+local function StopTeleportLoop()
+	teleporting = false
+end
+
+-- Nút bắt đầu auto hop server
 ServerTab:CreateButton({
-	Name = "Hop Server (least players)",
+	Name = "Start Auto Hop Server (avoid old servers)",
 	Callback = function()
-		HopToLeastPopulatedServer()
+		Rayfield:Notify({
+			Title = "Server Hop",
+			Content = "Started auto hop to new servers!",
+			Duration = 4
+		})
+		StartTeleportLoop()
 	end,
 })
 
--- Input JobId để join
+-- Nút dừng auto hop server
+ServerTab:CreateButton({
+	Name = "Stop Auto Hop Server",
+	Callback = function()
+		StopTeleportLoop()
+		Rayfield:Notify({
+			Title = "Server Hop",
+			Content = "Stopped auto hop.",
+			Duration = 4
+		})
+	end,
+})
+
+-- Nút hop thủ công một lần theo logic mới
+ServerTab:CreateButton({
+	Name = "Hop Server Once (avoid old servers)",
+	Callback = function()
+		pcall(function()
+			TPReturner()
+			if foundAnything ~= "" then
+				TPReturner()
+			end
+		end)
+	end,
+})
+
+-- Input JobId để join server bất kỳ
 ServerTab:CreateInput({
 	Name = "Join Server by JobId",
 	PlaceholderText = "Paste JobId here",
@@ -182,7 +244,7 @@ ServerTab:CreateInput({
 	end
 })
 
--- Copy JobId hiện tại
+-- Nút copy JobId hiện tại
 ServerTab:CreateButton({
 	Name = "Copy current JobId",
 	Callback = function()
