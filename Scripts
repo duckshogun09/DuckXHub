@@ -92,12 +92,12 @@ local ServerTab = Window:CreateTab("Server")
 local playerCountLabel = ServerTab:CreateLabel("Players in the server: " .. tostring(#game.Players:GetPlayers()))
 
 game.Players.PlayerAdded:Connect(function()
-	playerCountLabel:Set("Players in the server: " .. tostring(#game.Players:GetPlayers()))
+    playerCountLabel:Set("Players in the server: " .. tostring(#game.Players:GetPlayers()))
 end)
 
 game.Players.PlayerRemoving:Connect(function()
-	task.wait(0.5)
-	playerCountLabel:Set("Players in the server: " .. tostring(#game.Players:GetPlayers()))
+    task.wait(0.5)
+    playerCountLabel:Set("Players in the server: " .. tostring(#game.Players:GetPlayers()))
 end)
 
 -- Dịch vụ
@@ -110,112 +110,111 @@ local foundAnything = ""
 
 -- Hàm tìm server để teleport (không tránh server cũ)
 local function TPReturner()
-	local Site
-	if foundAnything == "" then
-		Site = HttpService:JSONDecode(game:HttpGet('https://games.roblox.com/v1/games/' .. PlaceID .. '/servers/Public?sortOrder=Asc&limit=100'))
-	else
-		Site = HttpService:JSONDecode(game:HttpGet('https://games.roblox.com/v1/games/' .. PlaceID .. '/servers/Public?sortOrder=Asc&limit=100&cursor=' .. foundAnything))
-	end
+    local Site
+    if foundAnything == "" then
+        Site = HttpService:JSONDecode(game:HttpGet('https://games.roblox.com/v1/games/' .. PlaceID .. '/servers/Public?sortOrder=Asc&limit=100'))
+    else
+        Site = HttpService:JSONDecode(game:HttpGet('https://games.roblox.com/v1/games/' .. PlaceID .. '/servers/Public?sortOrder=Asc&limit=100&cursor=' .. foundAnything))
+    end
 
-	if Site.nextPageCursor and Site.nextPageCursor ~= "null" and Site.nextPageCursor ~= nil then
-		foundAnything = Site.nextPageCursor
-	else
-		foundAnything = ""
-	end
+    if Site.nextPageCursor and Site.nextPageCursor ~= "null" and Site.nextPageCursor ~= nil then
+        foundAnything = Site.nextPageCursor
+    else
+        foundAnything = ""
+    end
 
-	for i,v in pairs(Site.data) do
-		if tonumber(v.maxPlayers) > tonumber(v.playing) and tostring(v.id) ~= tostring(game.JobId) then
-			local ID = tostring(v.id)
-			pcall(function()
-				TeleportService:TeleportToPlaceInstance(PlaceID, ID, Players.LocalPlayer)
-			end)
-			wait(4)
-			break
-		end
-	end
+    for i,v in pairs(Site.data) do
+        if tonumber(v.maxPlayers) > tonumber(v.playing) and tostring(v.id) ~= tostring(game.JobId) then
+            local ID = tostring(v.id)
+            pcall(function()
+                TeleportService:TeleportToPlaceInstance(PlaceID, ID, Players.LocalPlayer)
+            end)
+            wait(4)
+            break
+        end
+    end
 end
 
 -- Vòng lặp tự động hop server với toggle nút
 local teleporting = false
-local autoHopButton
 
 local function StartTeleportLoop()
-	if teleporting then return end
-	teleporting = true
+    if teleporting then return end
+    teleporting = true
 
-	task.spawn(function()
-		while teleporting do
-			pcall(function()
-				TPReturner()
-				if foundAnything ~= "" then
-					TPReturner()
-				end
-			end)
-			task.wait(5)
-		end
-	end)
+    task.spawn(function()
+        while teleporting do
+            pcall(function()
+                TPReturner()
+                if foundAnything ~= "" then
+                    TPReturner()
+                end
+            end)
+            task.wait(5)
+        end
+    end)
 end
 
 local function StopTeleportLoop()
-	teleporting = false
+    teleporting = false
 end
 
-autoHopButton = ServerTab:CreateButton({
-	Name = "Start Auto Hop Server",
-	Callback = function()
-		if teleporting then
-			StopTeleportLoop()
-			autoHopButton:Set("Start Auto Hop Server")
-			Rayfield:Notify({
-				Title = "Server Hop",
-				Content = "Stopped auto hop.",
-				Duration = 4
-			})
-		else
-			StartTeleportLoop()
-			autoHopButton:Set("Stop Auto Hop Server")
-			Rayfield:Notify({
-				Title = "Server Hop",
-				Content = "Started auto hop!",
-				Duration = 4
-			})
-		end
-	end,
+-- Toggle auto hop server
+ServerTab:CreateToggle({
+    Name = "Auto Hop Server",
+    CurrentValue = false,
+    Callback = function(Value)
+        if Value then
+            StartTeleportLoop()
+            Rayfield:Notify({
+                Title = "Server Hop",
+                Content = "Started auto hop!",
+                Duration = 4
+            })
+        else
+            StopTeleportLoop()
+            Rayfield:Notify({
+                Title = "Server Hop",
+                Content = "Stopped auto hop.",
+                Duration = 4
+            })
+        end
+    end,
 })
 
 -- Nút hop thủ công một lần
 ServerTab:CreateButton({
-	Name = "Hop Server Once",
-	Callback = function()
-		pcall(function()
-			TPReturner()
-			if foundAnything ~= "" then
-				TPReturner()
-			end
-		end)
-	end,
+    Name = "Hop Server Once",
+    Callback = function()
+        pcall(function()
+            TPReturner()
+            if foundAnything ~= "" then
+                TPReturner()
+            end
+        end)
+    end,
 })
 
 -- Input JobId để join server bất kỳ
 ServerTab:CreateInput({
-	Name = "Join Server by JobId",
-	PlaceholderText = "Paste JobId here",
-	RemoveTextAfterFocusLost = false,
-	Callback = function(jobId)
-		TeleportService:TeleportToPlaceInstance(game.PlaceId, jobId, Players.LocalPlayer)
-	end
+    Name = "Join Server by JobId",
+    PlaceholderText = "Paste JobId here",
+    RemoveTextAfterFocusLost = false,
+    Callback = function(jobId)
+        TeleportService:TeleportToPlaceInstance(game.PlaceId, jobId, Players.LocalPlayer)
+    end
 })
 
 -- Nút copy JobId hiện tại
 ServerTab:CreateButton({
-	Name = "Copy current JobId",
-	Callback = function()
-		setclipboard(game.JobId)
-		Rayfield:Notify({
-			Title = "JobId Copied",
-			Content = "Copied the JobId of the current server to the clipboard!",
-			Duration = 4,
-			Image = 6035047409
-		})
-	end,
+    Name = "Copy current JobId",
+    Callback = function()
+        setclipboard(game.JobId)
+        Rayfield:Notify({
+            Title = "JobId Copied",
+            Content = "Copied the JobId of the current server to the clipboard!",
+            Duration = 4,
+            Image = 6035047409
+        })
+    end,
 })
