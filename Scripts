@@ -46,7 +46,7 @@ local scriptsByPlaceId = {
 			loadstring(game:HttpGet("https://raw.githubusercontent.com/AhmadV99/Speed-Hub-X/main/Speed%20Hub%20X.lua", true))()
 		]]
 	},
-	[1234567890] = { -- Ví dụ game thứ 3
+	[1234567890] = {
 		["Script A"] = [[
 			print("Đây là Script A cho game thứ 3")
 		]],
@@ -74,7 +74,7 @@ else
 	})
 end
 
-local GamesTab = Window:CreateTab("Support Games")
+local GamesTab = Window:CreateTab("Support")
 
 local gamesList = {
 	"Grow A Garden",
