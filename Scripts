@@ -23,7 +23,8 @@ HomeTab:CreateButton({
 		Rayfield:Notify({
 			Title = "Discord",
 			Content = "Discord link copied!",
-			Duration = 4
+			Duration = 4,
+			Image = 6031075938 -- icon Discord
 		})
 	end,
 })
@@ -157,7 +158,8 @@ ServerTab:CreateButton({
 		Rayfield:Notify({
 			Title = "JobId Copied",
 			Content = "Copied the JobId of the current server to the clipboard!",
-			Duration = 4
+			Duration = 4,
+			Image = 6035047409 -- icon clipboard
 		})
 	end,
 })
