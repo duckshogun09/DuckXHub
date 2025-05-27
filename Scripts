@@ -192,7 +192,7 @@ ServerTab:CreateToggle({
         if autoHop then
             task.spawn(function()
                 while autoHop do
-                    local countdown = 5
+                    local countdown = 3
                     for i = countdown, 1, -1 do
                         Rayfield:Notify({
                             Title = "Auto Hop Server",
@@ -213,9 +213,8 @@ ServerTab:CreateToggle({
                             Duration = 4,
                             Image = 6035047409
                         })
-                        break
                     end
-                    task.wait(5)
+                    task.wait(3)
                 end
             end)
         end
