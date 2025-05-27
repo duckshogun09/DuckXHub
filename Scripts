@@ -131,15 +131,23 @@ local function TPReturner()
         foundAnything = ""
     end
 
-    for i,v in pairs(Site.data) do
+    local minPlayers = math.huge
+    local bestServerId = nil
+
+    for _, v in pairs(Site.data) do
         if tonumber(v.maxPlayers) > tonumber(v.playing) and tostring(v.id) ~= tostring(game.JobId) then
-            local ID = tostring(v.id)
-            pcall(function()
-                TeleportService:TeleportToPlaceInstance(PlaceID, ID, Players.LocalPlayer)
-            end)
-            wait(4)
-            break
+            if tonumber(v.playing) < minPlayers then
+                minPlayers = tonumber(v.playing)
+                bestServerId = tostring(v.id)
+            end
         end
+    end
+
+    if bestServerId then
+        pcall(function()
+            TeleportService:TeleportToPlaceInstance(PlaceID, bestServerId, Players.LocalPlayer)
+        end)
+        wait(4)
     end
 end
 
@@ -181,7 +189,7 @@ ServerTab:CreateButton({
             Title = "JobId Copied",
             Content = "Copied the JobId of the current server to the clipboard!",
             Duration = 4,
-            Image = 6031075938
+            Image = 6035047409
         })
     end,
 })
