@@ -24,7 +24,7 @@ HomeTab:CreateButton({
 			Title = "Discord",
 			Content = "Discord link copied!",
 			Duration = 4,
-			Image = 6031075938 -- icon Discord
+			Image = 6031075938
 		})
 	end,
 })
@@ -159,7 +159,7 @@ ServerTab:CreateButton({
 			Title = "JobId Copied",
 			Content = "Copied the JobId of the current server to the clipboard!",
 			Duration = 4,
-			Image = 6035047409 -- icon clipboard
+			Image = 6031075938
 		})
 	end,
 })
