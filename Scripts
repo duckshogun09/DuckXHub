@@ -89,6 +89,17 @@ end
 
 local ServerTab = Window:CreateTab("Server")
 
+local playerCountLabel = ServerTab:CreateLabel("Người chơi trong server: " .. tostring(#game.Players:GetPlayers()))
+
+game.Players.PlayerAdded:Connect(function()
+	playerCountLabel:Set("Người chơi trong server: " .. tostring(#game.Players:GetPlayers()))
+end)
+
+game.Players.PlayerRemoving:Connect(function()
+	task.wait(0.5)
+	playerCountLabel:Set("Người chơi trong server: " .. tostring(#game.Players:GetPlayers()))
+end)
+
 ServerTab:CreateButton({
 	Name = "Hop Server",
 	Callback = function()
@@ -121,7 +132,7 @@ ServerTab:CreateButton({
 		else
 			Rayfield:Notify({
 				Title = "Server Hop",
-				Content = "No available servers found!",
+				Content = "Không tìm thấy server phù hợp!",
 				Duration = 5
 			})
 		end
@@ -137,4 +148,16 @@ ServerTab:CreateInput({
 		local Players = game:GetService("Players")
 		TeleportService:TeleportToPlaceInstance(game.PlaceId, jobId, Players.LocalPlayer)
 	end
+})
+
+ServerTab:CreateButton({
+	Name = "Copy JobId hiện tại",
+	Callback = function()
+		setclipboard(game.JobId)
+		Rayfield:Notify({
+			Title = "JobId Copied",
+			Content = "Đã copy JobId của server hiện tại vào clipboard!",
+			Duration = 4
+		})
+	end,
 })
