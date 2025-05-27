@@ -50,11 +50,17 @@ local scriptList = {
     ["No Lag Hub"] = [[
         loadstring(game:HttpGetAsync("https://raw.githubusercontent.com/NoLag-id/No-Lag-HUB/refs/heads/main/Loader/LoaderV1.lua"))()
     ]],
-    ["Script A"] = [[
-        print("This is Script A for the third game")
+    ["H4xScript Hub"] = [[
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/H4xScripts/Loader/refs/heads/main/loader2.lua"))()
     ]],
-    ["Script B"] = [[
-        print("This is Script B for the third game")
+    ["Alchemy Hub"] = [[
+        loadstring(game:HttpGet("https://scripts.alchemyhub.xyz"))()
+    ]],
+    ["Lunor Hub"] = [[
+        loadstring(game:HttpGet('https://lunor.dev/loader'))()
+    ]],
+    ["Vxeze Hub"] = [[
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Dex-Bear/Vxezehub/refs/heads/main/VxezeHubMain"))()
     ]]
 }
 
