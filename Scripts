@@ -218,3 +218,170 @@ ServerTab:CreateButton({
         })
     end,
 })
+
+local SettingTab = Window:CreateTab("Setting")
+local antiAfkGui = nil
+local antiAfkThread = nil
+
+local function startAntiAfk()
+    if antiAfkGui then return end
+
+    -- Đoạn code Anti-AFK của bạn (rút gọn lại cho toggle)
+    repeat wait() until game:IsLoaded() and game.Players and game.Players.LocalPlayer and game.Players.LocalPlayer.Character
+
+    if getgenv().AntiAfkExecuted and game.CoreGui:FindFirstChild("thisoneissocoldww") then 
+        getgenv().AntiAfkExecuted = false
+        getgenv().zamanbaslaticisi = false
+        game.CoreGui.thisoneissocoldww:Destroy()
+    end
+
+    getgenv().AntiAfkExecuted = true
+
+    -- Tạo GUI
+    antiAfkGui = Instance.new("ScreenGui")
+    antiAfkGui.Name = "thisoneissocoldww"
+    antiAfkGui.Parent = game.CoreGui
+    antiAfkGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+    local madebybloodofbatus = Instance.new("Frame")
+    madebybloodofbatus.Name = "madebybloodofbatus"
+    madebybloodofbatus.Parent = antiAfkGui
+    madebybloodofbatus.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    madebybloodofbatus.Position = UDim2.new(0.085, 0, 0.131, 0)
+    madebybloodofbatus.Size = UDim2.new(0, 225, 0, 96)
+
+    local UICornerw = Instance.new("UICorner")
+    UICornerw.Parent = madebybloodofbatus
+
+    local DestroyButton = Instance.new("TextButton")
+    DestroyButton.Name = "DestroyButton"
+    DestroyButton.Parent = madebybloodofbatus
+    DestroyButton.BackgroundTransparency = 1
+    DestroyButton.Position = UDim2.new(0.87, 0, 0.025, 0)
+    DestroyButton.Size = UDim2.new(0, 27, 0, 15)
+    DestroyButton.Font = Enum.Font.SourceSans
+    DestroyButton.Text = "X"
+    DestroyButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    DestroyButton.TextSize = 14
+
+    DestroyButton.MouseButton1Click:Connect(function()
+        getgenv().AntiAfkExecuted = false
+        getgenv().zamanbaslaticisi = false
+        if antiAfkGui then
+            antiAfkGui:Destroy()
+            antiAfkGui = nil
+        end
+    end)
+
+    local uselesslabelone = Instance.new("TextLabel")
+    uselesslabelone.Parent = madebybloodofbatus
+    uselesslabelone.BackgroundTransparency = 1
+    uselesslabelone.Position = UDim2.new(0.3, 0, 0, 0)
+    uselesslabelone.Size = UDim2.new(0, 95, 0, 24)
+    uselesslabelone.Font = Enum.Font.SourceSans
+    uselesslabelone.Text = "Anti Afk V1 By Evxn#6765"
+    uselesslabelone.TextColor3 = Color3.fromRGB(255, 255, 255)
+    uselesslabelone.TextSize = 14
+
+    local timerlabel = Instance.new("TextLabel")
+    timerlabel.Name = "timerlabel"
+    timerlabel.Parent = madebybloodofbatus
+    timerlabel.BackgroundTransparency = 1
+    timerlabel.Position = UDim2.new(0.65, 0, 0.68, 0)
+    timerlabel.Size = UDim2.new(0, 60, 0, 24)
+    timerlabel.Font = Enum.Font.SourceSans
+    timerlabel.Text = "0:0:0"
+    timerlabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    timerlabel.TextSize = 14
+
+    -- ... (các label khác, có thể rút gọn nếu không cần)
+
+    -- Kéo frame
+    local Drag = madebybloodofbatus
+    local UserInputService = game:GetService("UserInputService")
+    local TweenService = game:GetService("TweenService")
+    local dragging, dragInput, dragStart, startPos
+
+    local function update(input)
+        local delta = input.Position - dragStart
+        local dragTime = 0.04
+        local SmoothDrag = {}
+        SmoothDrag.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+        local dragSmoothFunction = TweenService:Create(Drag, TweenInfo.new(dragTime, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), SmoothDrag)
+        dragSmoothFunction:Play()
+    end
+    Drag.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = true
+            dragStart = input.Position
+            startPos = Drag.Position
+            input.Changed:Connect(function()
+                if input.UserInputState == Enum.UserInputState.End then
+                    dragging = false
+                end
+            end)
+        end
+    end)
+    Drag.InputChanged:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+            dragInput = input
+        end
+    end)
+    UserInputService.InputChanged:Connect(function(input)
+        if input == dragInput and dragging and Drag.Size then
+            update(input)
+        end
+    end)
+
+    -- Anti-AFK logic
+    local vu = game:GetService("VirtualUser")
+    antiAfkThread = game.Players.LocalPlayer.Idled:Connect(function()
+        vu:Button2Down(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
+        task.wait(1)
+        vu:Button2Up(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
+    end)
+
+    -- Timer
+    getgenv().zamanbaslaticisi = true
+    spawn(function()
+        local saniye, dakika, saat = 0, 0, 0
+        while getgenv().zamanbaslaticisi and antiAfkGui do
+            wait(1)
+            saniye = saniye + 1
+            if saniye >= 60 then
+                saniye = 0
+                dakika = dakika + 1
+            end
+            if dakika >= 60 then
+                dakika = 0
+                saat = saat + 1
+            end
+            timerlabel.Text = string.format("%d:%d:%d", saat, dakika, saniye)
+        end
+    end)
+end
+
+local function stopAntiAfk()
+    getgenv().AntiAfkExecuted = false
+    getgenv().zamanbaslaticisi = false
+    if antiAfkThread then
+        antiAfkThread:Disconnect()
+        antiAfkThread = nil
+    end
+    if antiAfkGui then
+        antiAfkGui:Destroy()
+        antiAfkGui = nil
+    end
+end
+
+SettingTab:CreateToggle({
+    Name = "Anti-AFK",
+    CurrentValue = false,
+    Callback = function(enabled)
+        if enabled then
+            startAntiAfk()
+        else
+            stopAntiAfk()
+        end
+    end,
+})
