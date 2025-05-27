@@ -51,7 +51,7 @@ HomeTab:CreateParagraph({
     }, "\n")
 })
 
-HomeTab:CreateLabel("Anti-AFK: Đã bật tự động khi chạy script")
+HomeTab:CreateLabel("Anti-AFK: Auto enabled")
 
 local ScriptTab = Window:CreateTab("Scripts")
 
@@ -115,7 +115,17 @@ local TeleportService = game:GetService("TeleportService")
 local Players = game:GetService("Players")
 local PlaceID = game.PlaceId
 
+local AllIDs = {}
 local foundAnything = ""
+local actualHour = os.date("!*t").hour
+
+local File = pcall(function()
+    AllIDs = HttpService:JSONDecode(readfile("NotSameServers.json"))
+end)
+if not File then
+    table.insert(AllIDs, actualHour)
+    writefile("NotSameServers.json", HttpService:JSONEncode(AllIDs))
+end
 
 local function TPReturner()
     local Site
@@ -127,24 +137,42 @@ local function TPReturner()
 
     if Site.nextPageCursor and Site.nextPageCursor ~= "null" and Site.nextPageCursor ~= nil then
         foundAnything = Site.nextPageCursor
-    else
-        foundAnything = ""
     end
 
     local minPlayers = math.huge
     local bestServerId = nil
 
     for _, v in pairs(Site.data) do
-        if tonumber(v.maxPlayers) > tonumber(v.playing) and tostring(v.id) ~= tostring(game.JobId) then
-            if tonumber(v.playing) < minPlayers then
+        local Possible = true
+        local ID = tostring(v.id)
+        if tonumber(v.maxPlayers) > tonumber(v.playing) and ID ~= tostring(game.JobId) then
+            for i, Existing in pairs(AllIDs) do
+                if i ~= 1 then
+                    if ID == tostring(Existing) then
+                        Possible = false
+                        break
+                    end
+                else
+                    if tonumber(actualHour) ~= tonumber(Existing) then
+                        pcall(function()
+                            delfile("NotSameServers.json")
+                            AllIDs = {}
+                            table.insert(AllIDs, actualHour)
+                        end)
+                    end
+                end
+            end
+            if Possible and tonumber(v.playing) < minPlayers then
                 minPlayers = tonumber(v.playing)
-                bestServerId = tostring(v.id)
+                bestServerId = ID
             end
         end
     end
 
     if bestServerId then
+        table.insert(AllIDs, bestServerId)
         pcall(function()
+            writefile("NotSameServers.json", HttpService:JSONEncode(AllIDs))
             TeleportService:TeleportToPlaceInstance(PlaceID, bestServerId, Players.LocalPlayer)
         end)
         wait(4)
@@ -153,7 +181,18 @@ end
 
 ServerTab:CreateButton({
     Name = "Hop Server",
+    Description = "Note: Automatically hops until you join a different server",
     Callback = function()
+        local countdown = 5
+        for i = countdown, 1, -1 do
+            Rayfield:Notify({
+                Title = "Hop Server",
+                Content = "Hop server in " .. i .. " seconds...",
+                Duration = 1,
+                Image = 6035047409
+            })
+            task.wait(1)
+        end
         while true do
             local success, err = pcall(function()
                 TPReturner()
