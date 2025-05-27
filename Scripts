@@ -12,9 +12,11 @@ local HomeTab = Window:CreateTab("Home")
 
 local message = game:HttpGet("https://raw.githubusercontent.com/duckshogun09/DuckHub/refs/heads/main/notice.txt")
 HomeTab:CreateParagraph({
-	Title = "Latest announcement",
+	Title = "Latest Announcement",
 	Content = message
 })
+
+HomeTab:CreateLabel("Version: 1.0.0")
 
 HomeTab:CreateButton({
 	Name = "Join Discord",
@@ -29,7 +31,16 @@ HomeTab:CreateButton({
 	end,
 })
 
-HomeTab:CreateLabel("Version: 1.0.0")
+HomeTab:CreateParagraph({
+	Title = "Supported Games",
+	Content = table.concat({
+		"• Grow A Garden",
+		"• Blox Fruits",
+		"• Arise Crossover",
+		"• King Legacy"
+	}, "\n")
+})
+
 
 local ScriptTab = Window:CreateTab("Scripts")
 
@@ -71,23 +82,11 @@ if scripts then
 else
 	ScriptTab:CreateParagraph({
 		Title = "Notification",
-		Content = "Scripts are not available for the current game. See what games the script supports on the Support Games page"
+		Content = "Scripts are not available for the current game. See what games the script supports in the Home tab."
 	})
 end
 
-local GamesTab = Window:CreateTab("Support")
-
-local gamesList = {
-	"Grow A Garden",
-	"Blox Fruits",
-	"Arise Crossover",
-	"King Legacy"
-}
-
-for _, gameName in ipairs(gamesList) do
-	GamesTab:CreateLabel(gameName)
-end
-
+-- Tab Server
 local ServerTab = Window:CreateTab("Server")
 
 local playerCountLabel = ServerTab:CreateLabel("Players in the server: " .. tostring(#game.Players:GetPlayers()))
@@ -159,7 +158,7 @@ ServerTab:CreateButton({
 			Title = "JobId Copied",
 			Content = "Copied the JobId of the current server to the clipboard!",
 			Duration = 4,
-			Image = 6031075938
+			Image = 6035047409
 		})
 	end,
 })
