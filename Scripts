@@ -26,6 +26,8 @@ HomeTab:CreateParagraph({
     Content = message
 })
 
+HomeTab:CreateLabel("Anti-AFK: Auto enabled")
+
 HomeTab:CreateLabel("Version: 1.0.0")
 
 HomeTab:CreateButton({
@@ -51,7 +53,6 @@ HomeTab:CreateParagraph({
     }, "\n")
 })
 
-HomeTab:CreateLabel("Anti-AFK: Auto enabled")
 
 local ScriptTab = Window:CreateTab("Scripts")
 
