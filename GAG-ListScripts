@@ -12,9 +12,9 @@ end
 startAntiAfk()
 
 local Window = Rayfield:CreateWindow({
-    Name = "DuckX Hub - Type: Script Menu V1.0.3",
+    Name = "Script Menu V1.0.0",
     LoadingTitle = "Loading...",
-    LoadingSubtitle = "by Duck",
+    LoadingSubtitle = "Tung Tung Tung Tung Tung Tung Sahur",
     KeySystem = false
 })
 
@@ -24,19 +24,6 @@ local message = game:HttpGet("https://raw.githubusercontent.com/duckshogun09/Duc
 HomeTab:CreateParagraph({
     Title = "Latest Announcement",
     Content = message
-})
-
-HomeTab:CreateButton({
-    Name = "Join Discord",
-    Callback = function()
-        setclipboard("discord.gg/NF6fZapa3U")
-        Rayfield:Notify({
-            Title = "Discord",
-            Content = "Discord link copied!",
-            Duration = 4,
-            Image = 6031075938
-        })
-    end,
 })
 
 HomeTab:CreateLabel("Anti-AFK: Auto enabled")
