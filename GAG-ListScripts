@@ -68,6 +68,11 @@ for name, code in pairs(scriptList) do
     ScriptTab:CreateButton({
         Name = name,
         Callback = function()
+            game.StarterGui:SetCore("SendNotification", {
+                Title = "Please wait...";
+                Text = "The script is loading...";
+                Duration = 3;
+            })
             loadstring(code)()
         end
     })
