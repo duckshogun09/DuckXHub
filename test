@@ -1,0 +1,703 @@
+local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
+local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
+
+local SaveManager = {} do
+	local httpService = game:GetService("HttpService")
+
+local SaveManager = {} do
+	SaveManager.Folder = "DuckXHub"
+	SaveManager.Ignore = {}
+	SaveManager.Parser = {
+		Toggle = {
+			Save = function(idx, object) 
+				return { type = "Toggle", idx = idx, value = object.Value } 
+			end,
+			Load = function(idx, data)
+				if SaveManager.Options[idx] then 
+					SaveManager.Options[idx]:SetValue(data.value)
+				end
+			end,
+		},
+		Slider = {
+			Save = function(idx, object)
+				return { type = "Slider", idx = idx, value = tostring(object.Value) }
+			end,
+			Load = function(idx, data)
+				if SaveManager.Options[idx] then 
+					SaveManager.Options[idx]:SetValue(data.value)
+				end
+			end,
+		},
+		Dropdown = {
+			Save = function(idx, object)
+				return { type = "Dropdown", idx = idx, value = object.Value, mutli = object.Multi }
+			end,
+			Load = function(idx, data)
+				if SaveManager.Options[idx] then 
+					SaveManager.Options[idx]:SetValue(data.value)
+				end
+			end,
+		},
+		Colorpicker = {
+			Save = function(idx, object)
+				return { type = "Colorpicker", idx = idx, value = object.Value:ToHex(), transparency = object.Transparency }
+			end,
+			Load = function(idx, data)
+				if SaveManager.Options[idx] then 
+					SaveManager.Options[idx]:SetValueRGB(Color3.fromHex(data.value), data.transparency)
+				end
+			end,
+		},
+		Keybind = {
+			Save = function(idx, object)
+				return { type = "Keybind", idx = idx, mode = object.Mode, key = object.Value }
+			end,
+			Load = function(idx, data)
+				if SaveManager.Options[idx] then 
+					SaveManager.Options[idx]:SetValue(data.key, data.mode)
+				end
+			end,
+		},
+
+		Input = {
+			Save = function(idx, object)
+				return { type = "Input", idx = idx, text = object.Value }
+			end,
+			Load = function(idx, data)
+				if SaveManager.Options[idx] and type(data.text) == "string" then
+					SaveManager.Options[idx]:SetValue(data.text)
+				end
+			end,
+		},
+	}
+
+	function SaveManager:SetIgnoreIndexes(list)
+		for _, key in next, list do
+			self.Ignore[key] = true
+		end
+	end
+
+	function SaveManager:SetFolder(folder)
+		self.Folder = folder;
+		self:BuildFolderTree()
+	end
+
+	function SaveManager:Save(name)
+		if (not name) then
+			return false, "no config file is selected"
+		end
+
+		local fullPath = self.Folder .. "/settings/" .. name .. ".json"
+
+		local data = {
+			objects = {}
+		}
+
+		for idx, option in next, SaveManager.Options do
+			if not self.Parser[option.Type] then continue end
+			if self.Ignore[idx] then continue end
+
+			table.insert(data.objects, self.Parser[option.Type].Save(idx, option))
+		end	
+
+		local success, encoded = pcall(httpService.JSONEncode, httpService, data)
+		if not success then
+			return false, "failed to encode data"
+		end
+
+		writefile(fullPath, encoded)
+		return true
+	end
+
+	function SaveManager:Load(name)
+		if (not name) then
+			return false, "no config file is selected"
+		end
+		
+		local file = self.Folder .. "/settings/" .. name .. ".json"
+		if not isfile(file) then return false, "invalid file" end
+
+		local success, decoded = pcall(httpService.JSONDecode, httpService, readfile(file))
+		if not success then return false, "decode error" end
+
+		for _, option in next, decoded.objects do
+			if self.Parser[option.type] then
+				task.spawn(function() self.Parser[option.type].Load(option.idx, option) end) -- task.spawn() so the config loading wont get stuck.
+			end
+		end
+
+		return true
+	end
+
+	function SaveManager:IgnoreThemeSettings()
+		self:SetIgnoreIndexes({ 
+			"InterfaceTheme", "AcrylicToggle", "TransparentToggle", "MenuKeybind"
+		})
+	end
+
+	function SaveManager:BuildFolderTree()
+		local paths = {
+			self.Folder,
+			self.Folder .. "/settings"
+		}
+
+		for i = 1, #paths do
+			local str = paths[i]
+			if not isfolder(str) then
+				makefolder(str)
+			end
+		end
+	end
+
+	function SaveManager:RefreshConfigList()
+		local list = listfiles(self.Folder .. "/settings")
+
+		local out = {}
+		for i = 1, #list do
+			local file = list[i]
+			if file:sub(-5) == ".json" then
+				local pos = file:find(".json", 1, true)
+				local start = pos
+
+				local char = file:sub(pos, pos)
+				while char ~= "/" and char ~= "\\" and char ~= "" do
+					pos = pos - 1
+					char = file:sub(pos, pos)
+				end
+
+				if char == "/" or char == "\\" then
+					local name = file:sub(pos + 1, start - 1)
+					if name ~= "options" then
+						table.insert(out, name)
+					end
+				end
+			end
+		end
+		
+		return out
+	end
+
+	function SaveManager:SetLibrary(library)
+		self.Library = library
+        self.Options = library.Options
+	end
+
+	function SaveManager:LoadAutoloadConfig()
+		if isfile(self.Folder .. "/settings/autoload.txt") then
+			local name = readfile(self.Folder .. "/settings/autoload.txt")
+
+			local success, err = self:Load(name)
+			if not success then
+				return self.Library:Notify({
+					Title = "Interface",
+					Content = "Config loader",
+					SubContent = "Failed to load autoload config: " .. err,
+					Duration = 7
+				})
+			end
+
+			self.Library:Notify({
+				Title = "Interface",
+				Content = "Config loader",
+				SubContent = string.format("Auto loaded config %q", name),
+				Duration = 7
+			})
+		end
+	end
+
+	function SaveManager:BuildConfigSection(tab)
+		assert(self.Library, "Must set SaveManager.Library")
+
+		local section = tab:AddSection("Configuration")
+
+		section:AddInput("SaveManager_ConfigName",    { Title = "Config name" })
+		section:AddDropdown("SaveManager_ConfigList", { Title = "Config list", Values = self:RefreshConfigList(), AllowNull = true })
+
+		section:AddButton({
+            Title = "Create config",
+            Callback = function()
+                local name = SaveManager.Options.SaveManager_ConfigName.Value
+
+                if name:gsub(" ", "") == "" then 
+                    return self.Library:Notify({
+						Title = "Interface",
+						Content = "Config loader",
+						SubContent = "Invalid config name (empty)",
+						Duration = 7
+					})
+                end
+
+                local success, err = self:Save(name)
+                if not success then
+                    return self.Library:Notify({
+						Title = "Interface",
+						Content = "Config loader",
+						SubContent = "Failed to save config: " .. err,
+						Duration = 7
+					})
+                end
+
+				self.Library:Notify({
+					Title = "Interface",
+					Content = "Config loader",
+					SubContent = string.format("Created config %q", name),
+					Duration = 7
+				})
+
+                SaveManager.Options.SaveManager_ConfigList:SetValues(self:RefreshConfigList())
+                SaveManager.Options.SaveManager_ConfigList:SetValue(nil)
+            end
+        })
+
+        section:AddButton({Title = "Load config", Callback = function()
+			local name = SaveManager.Options.SaveManager_ConfigList.Value
+
+			local success, err = self:Load(name)
+			if not success then
+				return self.Library:Notify({
+					Title = "Interface",
+					Content = "Config loader",
+					SubContent = "Failed to load config: " .. err,
+					Duration = 7
+				})
+			end
+
+			self.Library:Notify({
+				Title = "Interface",
+				Content = "Config loader",
+				SubContent = string.format("Loaded config %q", name),
+				Duration = 7
+			})
+		end})
+
+		section:AddButton({Title = "Overwrite config", Callback = function()
+			local name = SaveManager.Options.SaveManager_ConfigList.Value
+
+			local success, err = self:Save(name)
+			if not success then
+				return self.Library:Notify({
+					Title = "Interface",
+					Content = "Config loader",
+					SubContent = "Failed to overwrite config: " .. err,
+					Duration = 7
+				})
+			end
+
+			self.Library:Notify({
+				Title = "Interface",
+				Content = "Config loader",
+				SubContent = string.format("Overwrote config %q", name),
+				Duration = 7
+			})
+		end})
+
+		section:AddButton({Title = "Refresh list", Callback = function()
+			SaveManager.Options.SaveManager_ConfigList:SetValues(self:RefreshConfigList())
+			SaveManager.Options.SaveManager_ConfigList:SetValue(nil)
+		end})
+
+		local AutoloadButton
+		AutoloadButton = section:AddButton({Title = "Set as autoload", Description = "Current autoload config: none", Callback = function()
+			local name = SaveManager.Options.SaveManager_ConfigList.Value
+			writefile(self.Folder .. "/settings/autoload.txt", name)
+			AutoloadButton:SetDesc("Current autoload config: " .. name)
+			self.Library:Notify({
+				Title = "Interface",
+				Content = "Config loader",
+				SubContent = string.format("Set %q to auto load", name),
+				Duration = 7
+			})
+		end})
+
+		if isfile(self.Folder .. "/settings/autoload.txt") then
+			local name = readfile(self.Folder .. "/settings/autoload.txt")
+			AutoloadButton:SetDesc("Current autoload config: " .. name)
+		end
+
+		SaveManager:SetIgnoreIndexes({ "SaveManager_ConfigList", "SaveManager_ConfigName" })
+	end
+
+	SaveManager:BuildFolderTree()
+end
+
+return SaveManager
+
+end
+
+
+getgenv().Fluent = Fluent
+
+local Players = game:GetService("Players")
+local TeleportService = game:GetService("TeleportService")
+local LocalPlayer = Players.LocalPlayer
+local HttpService = game:GetService("HttpService")
+local VirtualUser = game:GetService("VirtualUser")
+
+local Window = Fluent:CreateWindow({
+    Title = "DuckXHub",
+    SubTitle = "by duckfankurumi",
+    TabWidth = 160,
+    Size = UDim2.fromOffset(580, 460),
+    Acrylic = true,
+    Theme = "Dark",
+    MinimizeKey = Enum.KeyCode.LeftControl
+})
+
+if Fluent._minimizeKey then
+    MinimizeKey = Fluent._minimizeKey
+end
+
+local Tabs = {
+    Info = Window:AddTab({ Title = "Info", Icon = "info" }),
+    Scripts = Window:AddTab({ Title = "Scripts", Icon = "file" }),
+    Server = Window:AddTab({ Title = "Server", Icon = "server" }),
+    Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
+}
+
+local Options = Fluent.Options
+
+-- Info Tab
+Tabs.Info:AddParagraph({
+    Title = "DuckXHub Info",
+    Content = "Welcome to DuckXHub Script Manager!\nEnjoy managing your scripts with Our Script Manager."
+})
+
+Tabs.Info:AddToggle("AntiAFK", { Title = "Anti-AFK", Default = true }):OnChanged(function(state)
+    if state then
+        if not getgenv().AntiAFKConnection then
+            getgenv().AntiAFKConnection = LocalPlayer.Idled:Connect(function()
+                VirtualUser:Button2Down(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
+                task.wait(1)
+                VirtualUser:Button2Up(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
+            end)
+        end
+    else
+        if getgenv().AntiAFKConnection then
+            getgenv().AntiAFKConnection:Disconnect()
+            getgenv().AntiAFKConnection = nil
+        end
+    end
+end)
+
+-- Script Management
+local fixedScriptFolder = "DuckXHub/ScriptFiles"
+if not isfolder("DuckXHub") then makefolder("DuckXHub") end
+if not isfolder(fixedScriptFolder) then makefolder(fixedScriptFolder) end
+
+local NewScriptUID, NewScriptContent, SelectedUID = "", "", nil
+
+local function getUIDList()
+    local list = {}
+    for _, file in ipairs(listfiles(fixedScriptFolder)) do
+        local name = file:match("([^/\\]+)%.lua$")
+        if name then
+            local uid = name:match("^(%d+)_") or name
+            table.insert(list, uid)
+        end
+    end
+    table.sort(list)
+    return list
+end
+
+local UIDDropdown = Tabs.Scripts:AddDropdown("UIDList", {
+    Title = "Saved Scripts",
+    Values = getUIDList(),
+    Multi = false,
+    Default = nil
+})
+
+UIDDropdown:OnChanged(function(value)
+    SelectedUID = value
+end)
+
+Tabs.Scripts:AddButton({
+    Title = "Add Script",
+    Callback = function()
+        local editedUID, editedScript = "", ""
+
+        local ScreenGui = Instance.new("ScreenGui", game.CoreGui)
+        ScreenGui.Name = "DuckXHubAddGui"
+
+        local Frame = Instance.new("Frame", ScreenGui)
+        Frame.Size = UDim2.new(0, 400, 0, 300)
+        Frame.Position = UDim2.new(0.5, -200, 0.5, -150)
+        Frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+        Frame.BorderSizePixel = 0
+
+        local function addTextBox(labelText, defaultText, posY, callback)
+            local Label = Instance.new("TextLabel", Frame)
+            Label.Text = labelText
+            Label.Position = UDim2.new(0, 10, 0, posY)
+            Label.Size = UDim2.new(0, 80, 0, 25)
+            Label.TextColor3 = Color3.new(1, 1, 1)
+            Label.BackgroundTransparency = 1
+            Label.TextXAlignment = Enum.TextXAlignment.Left
+
+            local TextBox = Instance.new("TextBox", Frame)
+            TextBox.Text = defaultText
+            TextBox.Position = UDim2.new(0, 100, 0, posY)
+            TextBox.Size = UDim2.new(0, 280, 0, 25)
+            TextBox.TextColor3 = Color3.new(1, 1, 1)
+            TextBox.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+            TextBox.ClearTextOnFocus = false
+            TextBox.FocusLost:Connect(function() callback(TextBox.Text) end)
+        end
+
+        addTextBox("UID:", "", 10, function(text) editedUID = text end)
+        addTextBox("Script:", "", 45, function(text) editedScript = text end)
+
+        local function addButton(text, posY, callback)
+            local Button = Instance.new("TextButton", Frame)
+            Button.Text = text
+            Button.Position = UDim2.new(0, 10, 0, posY)
+            Button.Size = UDim2.new(1, -20, 0, 30)
+            Button.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+            Button.TextColor3 = Color3.new(1, 1, 1)
+            Button.MouseButton1Click:Connect(callback)
+        end
+
+        addButton("💾 Save", 90, function()
+            if editedUID == "" or editedScript == "" then
+                Fluent:Notify({ Title = "Missing Info", Content = "Please enter UID and Script.", Duration = 3 }); return
+            end
+            local filename = editedUID .. "_script.lua"
+            local path = fixedScriptFolder .. "/" .. filename
+            writefile(path, editedUID .. "\n" .. editedScript)
+            UIDDropdown:SetValues(getUIDList())
+            Fluent:Notify({ Title = "Saved", Content = "Script added as " .. filename, Duration = 3 })
+            ScreenGui:Destroy()
+        end)
+
+        addButton("❌ Cancel", 130, function()
+            ScreenGui:Destroy()
+        end)
+    end
+})
+
+Tabs.Scripts:AddButton({
+    Title = "Manage Selected ScriptUID",
+    Callback = function()
+        if not SelectedUID then
+            Fluent:Notify({ Title = "Select ScriptUID", Content = "Please select a ScriptUID", Duration = 3 }); return
+        end
+
+        local filePath
+        for _, f in ipairs(listfiles(fixedScriptFolder)) do
+            if f:match("([^/\\]+)%.lua$"):find("^" .. SelectedUID .. "_") then
+                filePath = f
+                break
+            end
+        end
+
+        if not filePath or not isfile(filePath) then
+            Fluent:Notify({ Title = "Missing File", Content = "Script file not found.", Duration = 3 })
+            return
+        end
+
+        local success, content = pcall(readfile, filePath)
+        if not success or not content then
+            Fluent:Notify({ Title = "Error", Content = "Failed to read script file.", Duration = 3 })
+            return
+        end
+
+        local uidLine, scriptContent = content:match("([^\n]*)\n(.+)")
+        local editedUID, editedScript = uidLine or SelectedUID, scriptContent or ""
+
+        local ScreenGui = Instance.new("ScreenGui", game.CoreGui)
+        ScreenGui.Name = "DuckXHubManageGui"
+        local Frame = Instance.new("Frame", ScreenGui)
+        Frame.Size = UDim2.new(0, 400, 0, 300)
+        Frame.Position = UDim2.new(0.5, -200, 0.5, -150)
+        Frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+        Frame.BorderSizePixel = 0
+
+        local function addTextBox(labelText, defaultText, posY, callback)
+            local Label = Instance.new("TextLabel", Frame)
+            Label.Text = labelText
+            Label.Position = UDim2.new(0, 10, 0, posY)
+            Label.Size = UDim2.new(0, 80, 0, 25)
+            Label.TextColor3 = Color3.new(1, 1, 1)
+            Label.BackgroundTransparency = 1
+            Label.TextXAlignment = Enum.TextXAlignment.Left
+
+            local TextBox = Instance.new("TextBox", Frame)
+            TextBox.Text = defaultText
+            TextBox.Position = UDim2.new(0, 100, 0, posY)
+            TextBox.Size = UDim2.new(0, 280, 0, 25)
+            TextBox.TextColor3 = Color3.new(1, 1, 1)
+            TextBox.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+            TextBox.ClearTextOnFocus = false
+            TextBox.FocusLost:Connect(function() callback(TextBox.Text) end)
+        end
+
+        addTextBox("UID:", editedUID, 10, function(text) editedUID = text end)
+        addTextBox("Script:", editedScript, 45, function(text) editedScript = text end)
+
+        local function addButton(text, posY, callback)
+            local Button = Instance.new("TextButton", Frame)
+            Button.Text = text
+            Button.Position = UDim2.new(0, 10, 0, posY)
+            Button.Size = UDim2.new(1, -20, 0, 30)
+            Button.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+            Button.TextColor3 = Color3.new(1, 1, 1)
+            Button.MouseButton1Click:Connect(callback)
+        end
+
+        addButton("💾 Save", 90, function()
+            if editedUID == "" or editedScript == "" then
+                Fluent:Notify({ Title = "Missing Info", Content = "UID or script is missing.", Duration = 3 }); return
+            end
+            delfile(filePath)
+            local newFile = fixedScriptFolder .. "/" .. editedUID .. "_script.lua"
+            writefile(newFile, editedUID .. "\n" .. editedScript)
+            UIDDropdown:SetValues(getUIDList())
+            Fluent:Notify({ Title = "Saved", Content = "Script updated.", Duration = 3 })
+        end)
+
+        addButton("▶️ Run", 130, function()
+            local ok, err = pcall(function()
+                loadstring(editedScript)()
+            end)
+            if ok then
+                Fluent:Notify({ Title = "Executed", Content = "Script for UID " .. editedUID .. " has run", Duration = 3 })
+            else
+                Fluent:Notify({ Title = "Error", Content = "Execution failed: " .. tostring(err), Duration = 3 })
+            end
+        end)
+
+        addButton("🗑 Delete", 170, function()
+            delfile(filePath)
+            UIDDropdown:SetValues(getUIDList())
+            Fluent:Notify({ Title = "Deleted", Content = "Script deleted.", Duration = 3 })
+            ScreenGui:Destroy()
+        end)
+
+        addButton("❌ Close", 210, function()
+            ScreenGui:Destroy()
+        end)
+    end
+})
+
+Tabs.Scripts:AddToggle("AutoRunToggle", {
+    Title = "Auto Run Selected Script",
+    Default = false
+})
+
+-- Server Tab
+Tabs.Server:AddParagraph({
+    Title = "Player Count",
+    Content = "Players in server: " .. tostring(#Players:GetPlayers())
+})
+
+Tabs.Server:AddInput("JobIdInput", {
+    Title = "JobId",
+    Placeholder = "Paste JobId here",
+    Callback = function(input)
+        getgenv()._JoinJobId = input
+    end
+})
+
+Tabs.Server:AddButton({
+    Title = "Join Job by Id",
+    Callback = function()
+        if getgenv()._JoinJobId then
+            TeleportService:TeleportToPlaceInstance(game.PlaceId, getgenv()._JoinJobId)
+        else
+            Fluent:Notify({ Title = "Missing JobId", Content = "Please enter a JobId first.", Duration = 3 })
+        end
+    end
+})
+
+Tabs.Server:AddButton({
+    Title = "Copy Current JobId",
+    Callback = function()
+        setclipboard(game.JobId)
+        Fluent:Notify({ Title = "Copied", Content = "Current JobId copied to clipboard.", Duration = 3 })
+    end
+})
+
+Tabs.Server:AddButton({
+    Title = "Auto Hop Server",
+    Callback = function()
+        local function serverHop()
+            local Servers = game:HttpGet("https://games.roblox.com/v1/games/" .. game.PlaceId .. "/servers/Public?sortOrder=Asc&limit=100")
+            Servers = HttpService:JSONDecode(Servers)
+            for _, v in pairs(Servers.data) do
+                if v.playing < v.maxPlayers and v.id ~= game.JobId then
+                    TeleportService:TeleportToPlaceInstance(game.PlaceId, v.id)
+                    break
+                end
+            end
+        end
+        serverHop()
+    end
+})
+
+-- Addons
+SaveManager:SetLibrary(Fluent)
+InterfaceManager:SetLibrary(Fluent)
+SaveManager:IgnoreThemeSettings()
+SaveManager:SetIgnoreIndexes({})
+InterfaceManager:SetFolder("DuckXHub")
+SaveManager:SetFolder("DuckXHub/UserScripts")
+InterfaceManager:BuildInterfaceSection(Tabs.Settings)
+SaveManager:BuildConfigSection(Tabs.Settings)
+
+-- Auto-run UID script if enabled and file exists
+task.spawn(function()
+    task.wait(1)
+    local autoRun = Options.AutoRunToggle.Value
+    for _, f in ipairs(listfiles(fixedScriptFolder)) do
+        if f:match("^.-/" .. LocalPlayer.UserId .. "_.*%.lua$") and autoRun then
+            local success, content = pcall(readfile, f)
+            if success and content and #content > 0 then
+                local uidLine, script = content:match("([^\n]*)\n(.+)")
+                if tostring(uidLine) == tostring(LocalPlayer.UserId) and script then
+                    local ok, err = pcall(function()
+                        loadstring(script)()
+                    end)
+                    if ok then
+                        Fluent:Notify({ Title = "AutoRun", Content = "Script for UID " .. LocalPlayer.UserId .. " executed.", Duration = 3 })
+                    else
+                        Fluent:Notify({ Title = "AutoRun Error", Content = "Script execution failed: " .. tostring(err), Duration = 3 })
+                    end
+                end
+            end
+            break
+        end
+    end
+end)
+
+local VirtualInputManager = game:GetService("VirtualInputManager")
+
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "DuckXHubToggleMenu"
+ScreenGui.ResetOnSpawn = false
+ScreenGui.IgnoreGuiInset = true
+ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Global
+ScreenGui.Parent = game:GetService("CoreGui")
+
+local ImageButton = Instance.new("ImageButton")
+ImageButton.Parent = ScreenGui
+ImageButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+ImageButton.BorderSizePixel = 0
+ImageButton.Position = UDim2.new(0.02, 0, 0.2, 0)
+ImageButton.Size = UDim2.new(0, 50, 0, 50)
+ImageButton.Image = "rbxthumb://type=GamePass&id=944258394&w=150&h=150"
+ImageButton.Draggable = true -- kéo được
+ImageButton.AutoButtonColor = true
+
+local UICorner = Instance.new("UICorner")
+UICorner.CornerRadius = UDim.new(1, 0)
+UICorner.Parent = ImageButton
+
+ImageButton.MouseButton1Click:Connect(function()
+	local minimizeKey = (getgenv().Fluent and getgenv().Fluent._minimizeKey) or Enum.KeyCode.LeftControl
+	VirtualInputManager:SendKeyEvent(true, minimizeKey, false, game)
+	task.wait(0.05)
+	VirtualInputManager:SendKeyEvent(false, minimizeKey, false, game)
+end)
+
+Window:SelectTab(1)
+Fluent:Notify({ Title = "DuckXHub", Content = "Script Loaded", Duration = 3 })
+SaveManager:LoadAutoloadConfig()
