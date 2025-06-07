@@ -13,7 +13,7 @@ local VirtualUser = game:GetService("VirtualUser")
 local Window = Fluent:CreateWindow({
     Title = "DuckXHub",
     SubTitle = "by duckfankurumi",
-    TabWidth = 160,
+    TabWidth = 150,
     Size = UDim2.fromOffset(580, 460),
     Acrylic = true,
     Theme = "Dark",
@@ -135,22 +135,35 @@ Tabs.Scripts:AddButton({
         end
 
         addButton("💾 Save", 90, function()
-            local editedUID = UIDBox.Text
-            local editedScript = ScriptBox.Text
-            if editedUID == "" or editedScript == "" then
-                Fluent:Notify({ Title = "Missing Info", Content = "Please enter UID and Script.", Duration = 3 }); return
-            end
-            local filename = editedUID .. "_script.lua"
-            local path = fixedScriptFolder .. "/" .. filename
-            if isfile(path) then
-    Fluent:Notify({ Title = "Overwrite Warning", Content = "UID already exists, overwriting.", Duration = 3 })
-end
+    local editedUID = UIDBox.Text
+    local editedScript = ScriptBox.Text
 
-            writefile(path, editedUID .. "\n" .. editedScript)
-            UIDDropdown:SetValues(getUIDList())
-            Fluent:Notify({ Title = "Saved", Content = "Script added as " .. filename, Duration = 3 })
-            ScreenGui:Destroy()
-        end)
+    if editedScript == "" then
+        Fluent:Notify({ Title = "Missing Info", Content = "Please enter script content.", Duration = 3 })
+        return
+    end
+
+    local filename
+    if editedUID == "" then
+        filename = "default_script.lua"
+    else
+        filename = editedUID .. "_script.lua"
+    end
+
+    local path = fixedScriptFolder .. "/" .. filename
+
+    if isfile(path) then
+        Fluent:Notify({ Title = "Overwrite Warning", Content = "Script already exists, overwriting.", Duration = 3 })
+    end
+
+    -- Lưu nội dung: nếu có UID thì lưu UID + script, nếu không thì chỉ lưu script
+    local content = editedUID == "" and editedScript or (editedUID .. "\n" .. editedScript)
+    writefile(path, content)
+
+    UIDDropdown:SetValues(getUIDList())
+    Fluent:Notify({ Title = "Saved", Content = "Script added as " .. filename, Duration = 3 })
+    ScreenGui:Destroy()
+end)
 
         addButton("❌ Cancel", 130, function()
             ScreenGui:Destroy()
@@ -335,37 +348,65 @@ InterfaceManager:SetLibrary(Fluent)
 SaveManager:IgnoreThemeSettings()
 SaveManager:SetIgnoreIndexes({})
 InterfaceManager:SetFolder("DuckXHub")
-if not isfolder("DuckXHub/UserScripts") then makefolder("DuckXHub/UserScripts") end
-SaveManager:SetFolder("DuckXHub/UserScripts")
+if not isfolder("DuckXHub/Settings") then makefolder("DuckXHub/Settings") end
+SaveManager:SetFolder("DuckXHub/Settings")
 InterfaceManager:BuildInterfaceSection(Tabs.Settings)
 SaveManager:BuildConfigSection(Tabs.Settings)
 
 -- Auto-run UID script if enabled and file exists
 task.spawn(function()
     task.wait(1)
-    local autoRun = false
-if Options and Options.AutoRunToggle and Options.AutoRunToggle.Value then
-    autoRun = true
-end
+    local autoRun = Options and Options.AutoRunToggle and Options.AutoRunToggle.Value or false
+    if not autoRun then return end
 
+    local uid = tostring(LocalPlayer.UserId)
+    local uidFile, defaultFile = nil, fixedScriptFolder .. "/default_script.lua"
+
+    -- Tìm file khớp UID
     for _, f in ipairs(listfiles(fixedScriptFolder)) do
-        if f:match("^.-/" .. LocalPlayer.UserId .. "_.*%.lua$") and autoRun then
-            local success, content = pcall(readfile, f)
-            if success and content and #content > 0 then
-                local uidLine, script = content:match("([^\n]*)\n(.+)")
-                if tostring(uidLine) == tostring(LocalPlayer.UserId) and script then
-                    local ok, err = pcall(function()
-                        loadstring(script)()
-                    end)
-                    if ok then
-                        Fluent:Notify({ Title = "AutoRun", Content = "Script for UID " .. LocalPlayer.UserId .. " executed.", Duration = 3 })
-                    else
-                        Fluent:Notify({ Title = "AutoRun Error", Content = "Script execution failed: " .. tostring(err), Duration = 3 })
-                    end
-                end
-            end
+        if f:match("^.-/" .. uid .. "_.*%.lua$") then
+            uidFile = f
             break
         end
+    end
+
+    local function tryRun(path, isUID)
+    local success, content = pcall(readfile, path)
+    if not success or not content or #content == 0 then return false end
+
+    local script
+    if isUID then
+        local uidLine, scriptContent = content:match("([^\n]*)\n(.+)")
+        if tostring(uidLine) ~= uid or not scriptContent then return false end
+        script = scriptContent
+    else
+        script = content
+    end
+
+    local ok, err = pcall(function()
+        loadstring(script)()
+    end)
+    if ok then
+        Fluent:Notify({
+            Title = "AutoRun",
+            Content = "Running " .. path:match("([^/\\]+)$"),
+            Duration = 3
+        })
+    else
+        Fluent:Notify({
+            Title = "AutoRun Error",
+            Content = "Script execution failed: " .. tostring(err),
+            Duration = 3
+        })
+    end
+    return ok
+end
+
+    -- Ưu tiên chạy script UID, nếu không có thì chạy default
+    if uidFile then
+        tryRun(uidFile, true)
+    elseif isfile(defaultFile) then
+        tryRun(defaultFile, false)
     end
 end)
 
