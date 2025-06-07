@@ -384,7 +384,7 @@ ImageButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 ImageButton.BorderSizePixel = 0
 ImageButton.Position = UDim2.new(0.02, 0, 0.2, 0)
 ImageButton.Size = UDim2.new(0, 50, 0, 50)
-ImageButton.Image = "rbxthumb://type=GamePass&id=74301895627315&w=150&h=150"
+ImageButton.Image = "rbxthumb://type=GamePass&id=120758018005905&w=150&h=150"
 ImageButton.Draggable = true -- kéo được
 ImageButton.AutoButtonColor = true
 
