@@ -23,8 +23,7 @@ local function notify(title, msg)
 end
 
 local function sendWebhook(title, description, color)
-    if not webhook or webhook == "" then return end -- ❌ Không gửi nếu URL trống
-
+    if not webhook or webhook == "" then return end
     pcall(function()
         local syn = syn or {}
         syn.request = syn.request or http_request
@@ -59,6 +58,21 @@ local function sendWebhook(title, description, color)
     end)
 end
 
+local function getDifferentServer(placeId, currentJobId)
+    local success, response = pcall(function()
+        return HttpService:JSONDecode(game:HttpGet(
+            "https://games.roblox.com/v1/games/" .. placeId .. "/servers/Public?sortOrder=Asc&limit=100"))
+    end)
+    if not success then return nil end
+
+    for _, server in pairs(response.data or {}) do
+        if server.playing < server.maxPlayers and server.id ~= currentJobId then
+            return server.id
+        end
+    end
+    return nil
+end
+
 while true do wait()
     for _, v in pairs(DataSer:GetData().SavedObjects) do
         if v.ObjectType == "PetEgg" and v.Data.RandomPetData and v.Data.CanHatch then
@@ -81,10 +95,18 @@ while true do wait()
             sendWebhook("❌ Pet Not Found & Rejoining", desc, 0xFF0000)
             notify("🔁 Rejoining", "Không tìm thấy pet. Đang rejoin...")
             sentNotFoundWebhook = true
-            wait(3)
+
+            task.wait(3)
+
             player:Kick("Don't have your target pet\\Rejoin")
-            task.wait(1)
-            TeleportService:Teleport(game.PlaceId, player)
+            task.wait(3)
+
+            local newServer = getDifferentServer(game.PlaceId, game.JobId)
+            if newServer then
+                TeleportService:TeleportToPlaceInstance(game.PlaceId, newServer, player)
+            else
+                TeleportService:Teleport(game.PlaceId, player)
+            end
         end
     end
 end
