@@ -1,17 +1,22 @@
+-- PetFinder (LocalScript chạy sau PetConfig)
+
+-- 🔃 CHỜ CẤU HÌNH CÓ GIÁ TRỊ
+repeat wait() until _G.TargetName and _G.Webhook_URL
+
+-- 📦 DỊCH VỤ
 local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
 local TeleportService = game:GetService("TeleportService")
 local StarterGui = game:GetService("StarterGui")
 local player = Players.LocalPlayer
-
-local webhook = Webhook_URL or ""
-local target = TargetName or _G.TargetName or "Unknown Pet"
 local DataSer = require(game:GetService("ReplicatedStorage").Modules.DataService)
 
+-- 🔁 BIẾN
 local notrejoin = false
 local sentPetWebhook = false
 local sentNotFoundWebhook = false
 
+-- 🔔 Gửi thông báo trong game
 local function notify(title, msg)
     pcall(function()
         StarterGui:SetCore("SendNotification", {
@@ -22,8 +27,9 @@ local function notify(title, msg)
     end)
 end
 
+-- 🌐 Gửi Webhook Discord
 local function sendWebhook(title, description, color, mentionEveryone)
-    if not webhook or webhook == "" then return end
+    if not _G.Webhook_URL or _G.Webhook_URL == "" then return end
 
     pcall(function()
         local syn = syn or {}
@@ -56,7 +62,7 @@ local function sendWebhook(title, description, color, mentionEveryone)
         end
 
         syn.request({
-            Url = webhook,
+            Url = _G.Webhook_URL,
             Method = "POST",
             Headers = {
                 ["Content-Type"] = "application/json"
@@ -66,16 +72,18 @@ local function sendWebhook(title, description, color, mentionEveryone)
     end)
 end
 
-
+-- 🔄 VÒNG LẶP KIỂM TRA PET
 while true do wait()
     for _, v in pairs(DataSer:GetData().SavedObjects) do
-        if v.ObjectType == "PetEgg" and v.Data.RandomPetData and v.Data.CanHatch then
-            if v.Data.RandomPetData.Name == target then
-                notrejoin = true
-                if not sentPetWebhook then
-                    sendWebhook("🎯 Found Target Pet!", "@everyone\n" .. player.Name .. " đã tìm thấy pet: **" .. target .. "**", 0x00FF00)
-                    notify("🎯 Found Pet", "Đã tìm thấy pet: " .. target)
-                    sentPetWebhook = true
+        if v.ObjectType == "PetEgg" then
+            if v.Data.RandomPetData and v.Data.CanHatch then
+                if v.Data.RandomPetData.Name == _G.TargetName then
+                    notrejoin = true
+                    if not sentPetWebhook then
+                        sendWebhook("🎯 Found Target Pet!", "@everyone\nĐã tìm thấy pet: **" .. _G.TargetName .. "**", 0x00FF00, true)
+                        notify("🎉 Found Pet", _G.TargetName)
+                        sentPetWebhook = true
+                    end
                 end
             end
         end
@@ -85,10 +93,10 @@ while true do wait()
         print("✅ Found Eggs!")
     else
         if not sentNotFoundWebhook then
-            local desc = "Không tìm thấy pet `" .. target .. "`.\nĐang rejoin game..."
-            sendWebhook("❌ Pet Not Found & Rejoining", desc, 0xFF0000)
+            sendWebhook("❌ Pet Not Found", "Không tìm thấy pet `" .. _G.TargetName .. "`. Đang rejoin...", 0xFF0000)
             notify("🔁 Rejoining", "Không tìm thấy pet. Đang rejoin...")
             sentNotFoundWebhook = true
+
             wait(3)
             player:Kick("Don't have your target pet\\Rejoin")
             task.wait(1)
