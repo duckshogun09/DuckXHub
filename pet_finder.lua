@@ -58,19 +58,23 @@ local function sendWebhook(title, description, color)
     end)
 end
 
-local function getDifferentServer(placeId, currentJobId)
-    local success, response = pcall(function()
+local function serverHop()
+    local success, result = pcall(function()
         return HttpService:JSONDecode(game:HttpGet(
-            "https://games.roblox.com/v1/games/" .. placeId .. "/servers/Public?sortOrder=Asc&limit=100"))
+            "https://games.roblox.com/v1/games/" .. game.PlaceId .. "/servers/Public?sortOrder=Asc&limit=100"))
     end)
-    if not success then return nil end
 
-    for _, server in pairs(response.data or {}) do
-        if server.playing < server.maxPlayers and server.id ~= currentJobId then
-            return server.id
+    if success and result and result.data then
+        for _, v in ipairs(result.data) do
+            if v.playing < v.maxPlayers and v.id ~= game.JobId then
+                TeleportService:TeleportToPlaceInstance(game.PlaceId, v.id, player)
+                return
+            end
         end
     end
-    return nil
+
+    -- fallback nếu không có server nào khác
+    TeleportService:Teleport(game.PlaceId, player)
 end
 
 while true do wait()
@@ -91,22 +95,14 @@ while true do wait()
         print("✅ Found Eggs!")
     else
         if not sentNotFoundWebhook then
-            local desc = "Không tìm thấy pet `" .. target .. "`.\nĐang rejoin game..."
-            sendWebhook("❌ Pet Not Found & Rejoining", desc, 0xFF0000)
+            sendWebhook("❌ Pet Not Found & Rejoining", "Không tìm thấy pet `" .. target .. "`.\nĐang rejoin game...", 0xFF0000)
             notify("🔁 Rejoining", "Không tìm thấy pet. Đang rejoin...")
             sentNotFoundWebhook = true
 
             task.wait(3)
-
             player:Kick("Don't have your target pet\\Rejoin")
             task.wait(3)
-
-            local newServer = getDifferentServer(game.PlaceId, game.JobId)
-            if newServer then
-                TeleportService:TeleportToPlaceInstance(game.PlaceId, newServer, player)
-            else
-                TeleportService:Teleport(game.PlaceId, player)
-            end
+            serverHop()
         end
     end
 end
