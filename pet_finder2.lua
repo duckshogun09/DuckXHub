@@ -3,6 +3,9 @@
 -- 🔃 CHỜ CẤU HÌNH CÓ GIÁ TRỊ
 repeat wait() until _G.TargetName and _G.Webhook_URL
 
+local TargetName = _G.TargetName or "Unknown"
+local Webhook_URL = _G.Webhook_URL or ""
+
 -- 📦 DỊCH VỤ
 local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
