@@ -23,6 +23,8 @@ local function notify(title, msg)
 end
 
 local function sendWebhook(title, description, color)
+    if not webhook or webhook == "" then return end -- ❌ Không gửi nếu URL trống
+
     pcall(function()
         local syn = syn or {}
         syn.request = syn.request or http_request
