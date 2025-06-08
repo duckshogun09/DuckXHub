@@ -65,7 +65,7 @@ while true do wait()
             if v.Data.RandomPetData.Name == target then
                 notrejoin = true
                 if not sentPetWebhook then
-                    sendWebhook("🎯 Found Target Pet!", player.Name .. " đã tìm thấy pet: **" .. target .. "**", 0x00FF00)
+                    sendWebhook("🎯 Found Target Pet!", "@everyone\n" .. player.Name .. " đã tìm thấy pet: **" .. target .. "**", 0x00FF00)
                     notify("🎯 Found Pet", "Đã tìm thấy pet: " .. target)
                     sentPetWebhook = true
                 end
