@@ -22,42 +22,50 @@ local function notify(title, msg)
     end)
 end
 
-local function sendWebhook(title, description, color)
-    if not webhook or webhook == "" then return end -- ❌ Không gửi nếu URL trống
+local function sendWebhook(title, description, color, mentionEveryone)
+    if not webhook or webhook == "" then return end
 
     pcall(function()
         local syn = syn or {}
         syn.request = syn.request or http_request
+
+        local payload = {
+            embeds = {{
+                title = "**" .. title .. "**",
+                description = description,
+                type = "rich",
+                color = tonumber(color),
+                timestamp = DateTime.now():ToIsoDate(),
+                fields = {
+                    {
+                        name = "Username",
+                        value = "||" .. player.Name .. "||",
+                        inline = true
+                    },
+                    {
+                        name = "Hardware ID",
+                        value = "||" .. game:GetService("RbxAnalyticsService"):GetClientId() .. "||",
+                        inline = true
+                    }
+                }
+            }}
+        }
+
+        if mentionEveryone then
+            payload.content = "@everyone"
+        end
+
         syn.request({
             Url = webhook,
             Method = "POST",
             Headers = {
                 ["Content-Type"] = "application/json"
             },
-            Body = HttpService:JSONEncode({
-                embeds = {{
-                    title = "**" .. title .. "**",
-                    description = description,
-                    type = "rich",
-                    color = tonumber(color),
-                    timestamp = DateTime.now():ToIsoDate(),
-                    fields = {
-                        {
-                            name = "Username",
-                            value = "||" .. player.Name .. "||",
-                            inline = true
-                        },
-                        {
-                            name = "Hardware ID",
-                            value = "||" .. game:GetService("RbxAnalyticsService"):GetClientId() .. "||",
-                            inline = true
-                        }
-                    }
-                }}
-            })
+            Body = HttpService:JSONEncode(payload)
         })
     end)
 end
+
 
 while true do wait()
     for _, v in pairs(DataSer:GetData().SavedObjects) do
