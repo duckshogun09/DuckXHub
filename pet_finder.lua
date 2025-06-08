@@ -60,21 +60,20 @@ end
 
 local function serverHop()
     local success, result = pcall(function()
-        return HttpService:JSONDecode(game:HttpGet(
-            "https://games.roblox.com/v1/games/" .. game.PlaceId .. "/servers/Public?sortOrder=Asc&limit=100"))
+        return HttpService:JSONDecode(game:HttpGet("https://games.roblox.com/v1/games/" .. game.PlaceId .. "/servers/Public?sortOrder=Asc&limit=100"))
     end)
 
     if success and result and result.data then
         for _, v in ipairs(result.data) do
             if v.playing < v.maxPlayers and v.id ~= game.JobId then
-                TeleportService:TeleportToPlaceInstance(game.PlaceId, v.id, player)
+                TeleportService:TeleportToPlaceInstance(game.PlaceId, v.id, Players.LocalPlayer)
                 return
             end
         end
     end
 
-    -- fallback nếu không có server nào khác
-    TeleportService:Teleport(game.PlaceId, player)
+    -- fallback nếu không tìm được server khác
+    TeleportService:Teleport(game.PlaceId, Players.LocalPlayer)
 end
 
 while true do wait()
