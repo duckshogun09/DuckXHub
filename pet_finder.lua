@@ -1,18 +1,22 @@
 local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
-local StarterGui = game:GetService("StarterGui")
 local TeleportService = game:GetService("TeleportService")
+local StarterGui = game:GetService("StarterGui")
 local player = Players.LocalPlayer
 
--- Dùng biến toàn cục từ loader
 local webhook = Webhook_URL or ""
-local target = TargetName or "Unknown Pet"
+local target = TargetName or _G.TargetName or "Unknown Pet"
+local DataSer = require(game:GetService("ReplicatedStorage").Modules.DataService)
 
-local function notify(title, text)
+local notrejoin = false
+local sentPetWebhook = false
+local sentNotFoundWebhook = false
+
+local function notify(title, msg)
     pcall(function()
         StarterGui:SetCore("SendNotification", {
             Title = title,
-            Text = text,
+            Text = msg,
             Duration = 5
         })
     end)
@@ -22,7 +26,6 @@ local function sendWebhook(title, description, color)
     pcall(function()
         local syn = syn or {}
         syn.request = syn.request or http_request
-
         syn.request({
             Url = webhook,
             Method = "POST",
@@ -30,7 +33,6 @@ local function sendWebhook(title, description, color)
                 ["Content-Type"] = "application/json"
             },
             Body = HttpService:JSONEncode({
-                content = "",
                 embeds = {{
                     title = "**" .. title .. "**",
                     description = description,
@@ -55,13 +57,7 @@ local function sendWebhook(title, description, color)
     end)
 end
 
-local notrejoin = false
-local sentPetWebhook = false
-local sentNotFoundWebhook = false
-local DataSer = require(game:GetService("ReplicatedStorage").Modules.DataService)
-
-while true do
-    wait()
+while true do wait()
     for _, v in pairs(DataSer:GetData().SavedObjects) do
         if v.ObjectType == "PetEgg" and v.Data.RandomPetData and v.Data.CanHatch then
             if v.Data.RandomPetData.Name == target then
@@ -79,9 +75,9 @@ while true do
         print("✅ Found Eggs!")
     else
         if not sentNotFoundWebhook then
-            local description = "Không tìm thấy pet `" .. target .. "`.\nĐang rejoin game..."
-            sendWebhook("❌ Pet Not Found & Rejoining", description, 0xFF0000)
-            notify("🔁 Rejoin", "Không tìm thấy pet. Đang rejoin...")
+            local desc = "Không tìm thấy pet `" .. target .. "`.\nĐang rejoin game..."
+            sendWebhook("❌ Pet Not Found & Rejoining", desc, 0xFF0000)
+            notify("🔁 Rejoining", "Không tìm thấy pet. Đang rejoin...")
             sentNotFoundWebhook = true
             wait(3)
             player:Kick("Don't have your target pet\\Rejoin")
