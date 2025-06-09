@@ -78,7 +78,12 @@ end
 
 
 function sendWebhook(matchedPets)
-    if webhookSent then return end
+    if webhookSent or not _G.Webhook or _G.Webhook == "" then
+        print("⚠️ Webhook is empty or disabled. Skipping webhook.")
+        webhookSent = true
+        notrejoin = true
+        return
+    end
 
     local petList = "`" .. table.concat(matchedPets, "`, `") .. "`"
     local targetList = "`" .. table.concat(_G.TargetNames, "`, `") .. "`"
