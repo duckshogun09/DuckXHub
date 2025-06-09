@@ -1,3 +1,6 @@
+_G.TargetNames = { "Golden Lab", "Disco Bee", "Dragonfly", "Queen Bee", "Raccoon" }
+_G.Webhook = "https://discord.com/api/webhooks/1381494567345586218/8nG9n3qgyC_fHyn1bHRan-4AVXOj0p_wkBw6vN8z81T6alBqmYB3wBdkI-9_IJH6dhiu"
+
 local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
 local Player = Players.LocalPlayer
@@ -46,7 +49,7 @@ function createPrompt()
     stopBtn.TextScaled = true
 
     local decisionMade = false
-    local countdown = 3
+    local countdown = 5
 
     continueBtn.MouseButton1Click:Connect(function()
         if decisionMade then return end
@@ -62,7 +65,7 @@ function createPrompt()
         screenGui:Destroy()
     end)
 
-    task.spawn(function()
+        task.spawn(function()
         while countdown > 0 and not decisionMade do
             textLabel.Text = "Start egg scan and webhook?\nAuto-continue in " .. countdown .. "s..."
             countdown -= 1
@@ -75,6 +78,7 @@ function createPrompt()
         end
     end)
 end
+
 
 function sendWebhook(matchedPets)
     if webhookSent then return end
