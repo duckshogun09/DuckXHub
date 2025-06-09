@@ -1,6 +1,3 @@
-_G.TargetNames = { "Golden Lab", "Disco Bee", "Dragonfly", "Queen Bee", "Raccoon" }
-_G.Webhook = "https://discord.com/api/webhooks/1381494567345586218/8nG9n3qgyC_fHyn1bHRan-4AVXOj0p_wkBw6vN8z81T6alBqmYB3wBdkI-9_IJH6dhiu"
-
 local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
 local Player = Players.LocalPlayer
