@@ -178,55 +178,49 @@ local SaveManager = {} do
         self.Options = library.Options
 	end
 
-	-- Improved autoload logic:
-	-- - Only loads if config exists
-	-- - Safe against .json or whitespace in autoload.txt
-	-- - Notifies user if autoload fails or not set
+	-- Improved and more robust autoload logic
 	function SaveManager:LoadAutoloadConfig()
 		local autoloadPath = self.Folder .. "/settings/autoload.txt"
 		if not isfile(autoloadPath) then
 			self.Library:Notify({
 				Title = "Config",
-				Content = "Autoload not set.",
-				Duration = 6
+				Content = "No autoload config set.",
+				Duration = 5
 			})
-			return false, "autoload not set"
+			return false
 		end
-
-		local name = readfile(autoloadPath):gsub("%.json$", ""):gsub("^%s*(.-)%s*$", "%1") -- trim whitespace and remove .json
+		-- Get config name, trim whitespace and remove .json if present
+		local name = readfile(autoloadPath):gsub("%.json$", ""):gsub("^%s*(.-)%s*$", "%1")
 		if name == "" then
 			self.Library:Notify({
 				Title = "Config",
 				Content = "Autoload config name is empty.",
-				Duration = 7
+				Duration = 5
 			})
-			return false, "empty autoload name"
+			return false
 		end
-
 		local configFile = self.Folder .. "/settings/" .. name .. ".json"
 		if not isfile(configFile) then
 			self.Library:Notify({
 				Title = "Config",
 				Content = "Autoload config does not exist: " .. name,
-				Duration = 8
+				Duration = 7
 			})
-			return false, "file not found"
+			return false
 		end
-
 		local success, err = self:Load(name)
 		if not success then
 			self.Library:Notify({
 				Title = "Config",
-				Content = "Autoload failed: " .. tostring(err),
-				Duration = 8
+				Content = "Failed to load autoload config: " .. tostring(err),
+				Duration = 7
 			})
-			return false, "load failed"
+			return false
 		end
-
 		self.Library:Notify({
 			Title = "Config",
 			Content = "Auto loaded config: " .. name,
-			Duration = 6
+			Duration = 5
 		})
 		return true
 	end
