@@ -181,6 +181,19 @@ local SaveManager = {} do
 	function SaveManager:LoadAutoloadConfig()
 		if isfile(self.Folder .. "/settings/autoload.txt") then
 			local name = readfile(self.Folder .. "/settings/autoload.txt")
+			-- FIX: Remove file extension if present
+			name = name:gsub("%.json$", "")
+			-- Check if config exists, otherwise refresh list
+			local configFile = self.Folder .. "/settings/" .. name .. ".json"
+			if not isfile(configFile) then
+				self.Library:Notify({
+					Title = "Interface",
+					Content = "Config loader",
+					SubContent = "Autoload config file does not exist: " .. name,
+					Duration = 7
+				})
+				return false
+			end
 
 			local success, err = self:Load(name)
 			if not success then
