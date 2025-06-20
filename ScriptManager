@@ -2,444 +2,259 @@ local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/
 local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/duckshogun09/DuckXHub/refs/heads/main/SaveManager.lua"))()
 local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/duckshogun09/DuckXHub/refs/heads/main/InterfaceManager.lua"))()
 
-getgenv().Fluent = Fluent
-
-local Players = game:GetService("Players")
-local TeleportService = game:GetService("TeleportService")
-local LocalPlayer = Players.LocalPlayer
-local HttpService = game:GetService("HttpService")
-local VirtualUser = game:GetService("VirtualUser")
-
 local Window = Fluent:CreateWindow({
-    Title = "DuckXHub",
-    SubTitle = "by duckfankurumi",
-    TabWidth = 150,
+    Title = "Fluent " .. Fluent.Version,
+    SubTitle = "by dawid",
+    TabWidth = 160,
     Size = UDim2.fromOffset(580, 460),
-    Acrylic = true,
+    Acrylic = true, -- The blur may be detectable, setting this to false disables blur entirely
     Theme = "Dark",
-    MinimizeKey = Enum.KeyCode.LeftControl
+    MinimizeKey = Enum.KeyCode.LeftControl -- Used when theres no MinimizeKeybind
 })
 
-local MinimizeKey = Enum.KeyCode.LeftControl
-if Fluent._minimizeKey then
-    MinimizeKey = Fluent._minimizeKey
-end
-
+--Fluent provides Lucide Icons https://lucide.dev/icons/ for the tabs, icons are optional
 local Tabs = {
-    Info = Window:AddTab({ Title = "Info", Icon = "info" }),
-    Scripts = Window:AddTab({ Title = "Scripts", Icon = "file" }),
-    Server = Window:AddTab({ Title = "Server", Icon = "server" }),
+    Main = Window:AddTab({ Title = "Main", Icon = "" }),
     Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
 }
 
 local Options = Fluent.Options
 
--- Info Tab
-Tabs.Info:AddParagraph({
-    Title = "DuckXHub Info",
-    Content = "Welcome to DuckXHub Script Manager!\nEnjoy managing your scripts with Our Script Manager."
-})
+do
+    Fluent:Notify({
+        Title = "Notification",
+        Content = "This is a notification",
+        SubContent = "SubContent", -- Optional
+        Duration = 5 -- Set to nil to make the notification not disappear
+    })
 
-Tabs.Info:AddToggle("AntiAFK", { Title = "Anti-AFK", Default = true }):OnChanged(function(state)
-    if state then
-        if not getgenv().AntiAFKConnection then
-            getgenv().AntiAFKConnection = LocalPlayer.Idled:Connect(function()
-                VirtualUser:Button2Down(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
-                task.wait(1)
-                VirtualUser:Button2Up(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
-            end)
+
+
+    Tabs.Main:AddParagraph({
+        Title = "Paragraph",
+        Content = "This is a paragraph.\nSecond line!"
+    })
+
+
+
+    Tabs.Main:AddButton({
+        Title = "Button",
+        Description = "Very important button",
+        Callback = function()
+            Window:Dialog({
+                Title = "Title",
+                Content = "This is a dialog",
+                Buttons = {
+                    {
+                        Title = "Confirm",
+                        Callback = function()
+                            print("Confirmed the dialog.")
+                        end
+                    },
+                    {
+                        Title = "Cancel",
+                        Callback = function()
+                            print("Cancelled the dialog.")
+                        end
+                    }
+                }
+            })
         end
-    else
-        if getgenv().AntiAFKConnection then
-            getgenv().AntiAFKConnection:Disconnect()
-            getgenv().AntiAFKConnection = nil
+    })
+
+
+
+    local Toggle = Tabs.Main:AddToggle("MyToggle", {Title = "Toggle", Default = false })
+
+    Toggle:OnChanged(function()
+        print("Toggle changed:", Options.MyToggle.Value)
+    end)
+
+    Options.MyToggle:SetValue(false)
+
+
+    
+    local Slider = Tabs.Main:AddSlider("Slider", {
+        Title = "Slider",
+        Description = "This is a slider",
+        Default = 2,
+        Min = 0,
+        Max = 5,
+        Rounding = 1,
+        Callback = function(Value)
+            print("Slider was changed:", Value)
         end
-    end
-end)
+    })
 
--- Script Management
-local fixedScriptFolder = "DuckXHub/ScriptFiles"
-if not isfolder("DuckXHub") then makefolder("DuckXHub") end
-if not isfolder(fixedScriptFolder) then makefolder(fixedScriptFolder) end
+    Slider:OnChanged(function(Value)
+        print("Slider changed:", Value)
+    end)
 
-local NewScriptUID, NewScriptContent, SelectedUID = "", "", nil
+    Slider:SetValue(3)
 
-local function getUIDList()
-    local list = {}
-    for _, file in ipairs(listfiles(fixedScriptFolder)) do
-        local name = file:match("([^/\\]+)%.lua$")
-        if name and name:match("^%d+_script$") then
-            local uid = name:match("^(%d+)_") or name
-            table.insert(list, uid)
+
+
+    local Dropdown = Tabs.Main:AddDropdown("Dropdown", {
+        Title = "Dropdown",
+        Values = {"one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve", "thirteen", "fourteen"},
+        Multi = false,
+        Default = 1,
+    })
+
+    Dropdown:SetValue("four")
+
+    Dropdown:OnChanged(function(Value)
+        print("Dropdown changed:", Value)
+    end)
+
+
+    
+    local MultiDropdown = Tabs.Main:AddDropdown("MultiDropdown", {
+        Title = "Dropdown",
+        Description = "You can select multiple values.",
+        Values = {"one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve", "thirteen", "fourteen"},
+        Multi = true,
+        Default = {"seven", "twelve"},
+    })
+
+    MultiDropdown:SetValue({
+        three = true,
+        five = true,
+        seven = false
+    })
+
+    MultiDropdown:OnChanged(function(Value)
+        local Values = {}
+        for Value, State in next, Value do
+            table.insert(Values, Value)
         end
-    end
-    table.sort(list)
-    return list
+        print("Mutlidropdown changed:", table.concat(Values, ", "))
+    end)
+
+
+
+    local Colorpicker = Tabs.Main:AddColorpicker("Colorpicker", {
+        Title = "Colorpicker",
+        Default = Color3.fromRGB(96, 205, 255)
+    })
+
+    Colorpicker:OnChanged(function()
+        print("Colorpicker changed:", Colorpicker.Value)
+    end)
+    
+    Colorpicker:SetValueRGB(Color3.fromRGB(0, 255, 140))
+
+
+
+    local TColorpicker = Tabs.Main:AddColorpicker("TransparencyColorpicker", {
+        Title = "Colorpicker",
+        Description = "but you can change the transparency.",
+        Transparency = 0,
+        Default = Color3.fromRGB(96, 205, 255)
+    })
+
+    TColorpicker:OnChanged(function()
+        print(
+            "TColorpicker changed:", TColorpicker.Value,
+            "Transparency:", TColorpicker.Transparency
+        )
+    end)
+
+
+
+    local Keybind = Tabs.Main:AddKeybind("Keybind", {
+        Title = "KeyBind",
+        Mode = "Toggle", -- Always, Toggle, Hold
+        Default = "LeftControl", -- String as the name of the keybind (MB1, MB2 for mouse buttons)
+
+        -- Occurs when the keybind is clicked, Value is `true`/`false`
+        Callback = function(Value)
+            print("Keybind clicked!", Value)
+        end,
+
+        -- Occurs when the keybind itself is changed, `New` is a KeyCode Enum OR a UserInputType Enum
+        ChangedCallback = function(New)
+            print("Keybind changed!", New)
+        end
+    })
+
+    -- OnClick is only fired when you press the keybind and the mode is Toggle
+    -- Otherwise, you will have to use Keybind:GetState()
+    Keybind:OnClick(function()
+        print("Keybind clicked:", Keybind:GetState())
+    end)
+
+    Keybind:OnChanged(function()
+        print("Keybind changed:", Keybind.Value)
+    end)
+
+    task.spawn(function()
+        while true do
+            wait(1)
+
+            -- example for checking if a keybind is being pressed
+            local state = Keybind:GetState()
+            if state then
+                print("Keybind is being held down")
+            end
+
+            if Fluent.Unloaded then break end
+        end
+    end)
+
+    Keybind:SetValue("MB2", "Toggle") -- Sets keybind to MB2, mode to Hold
+
+
+    local Input = Tabs.Main:AddInput("Input", {
+        Title = "Input",
+        Default = "Default",
+        Placeholder = "Placeholder",
+        Numeric = false, -- Only allows numbers
+        Finished = false, -- Only calls callback when you press enter
+        Callback = function(Value)
+            print("Input changed:", Value)
+        end
+    })
+
+    Input:OnChanged(function()
+        print("Input updated:", Input.Value)
+    end)
 end
 
-local UIDDropdown = Tabs.Scripts:AddDropdown("UIDList", {
-    Title = "Saved Scripts",
-    Values = getUIDList(),
-    Multi = false,
-    Default = nil
-})
 
-UIDDropdown:OnChanged(function(value)
-    SelectedUID = value
-end)
+-- Addons:
+-- SaveManager (Allows you to have a configuration system)
+-- InterfaceManager (Allows you to have a interface managment system)
 
-Tabs.Scripts:AddButton({
-    Title = "Add Script",
-    Callback = function()
-        local ScreenGui = Instance.new("ScreenGui", game.CoreGui)
-        ScreenGui.Name = "DuckXHubAddGui"
-
-        local Frame = Instance.new("Frame", ScreenGui)
-        Frame.Size = UDim2.new(0, 400, 0, 300)
-        Frame.Position = UDim2.new(0.5, -200, 0.5, -150)
-        Frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-        Frame.BorderSizePixel = 0
-
-        local UIDBox, ScriptBox
-
-        local function addTextBox(labelText, defaultText, posY)
-            local Label = Instance.new("TextLabel", Frame)
-            Label.Text = labelText
-            Label.Position = UDim2.new(0, 10, 0, posY)
-            Label.Size = UDim2.new(0, 80, 0, 25)
-            Label.TextColor3 = Color3.new(1, 1, 1)
-            Label.BackgroundTransparency = 1
-            Label.TextXAlignment = Enum.TextXAlignment.Left
-
-            local TextBox = Instance.new("TextBox", Frame)
-            TextBox.Text = defaultText
-            TextBox.Position = UDim2.new(0, 100, 0, posY)
-            TextBox.Size = UDim2.new(0, 280, 0, 25)
-            TextBox.TextColor3 = Color3.new(1, 1, 1)
-            TextBox.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-            TextBox.ClearTextOnFocus = false
-            return TextBox
-        end
-
-        UIDBox = addTextBox("UID:", "", 10)
-        ScriptBox = addTextBox("Script:", "", 45)
-
-        local function addButton(text, posY, callback)
-            local Button = Instance.new("TextButton", Frame)
-            Button.Text = text
-            Button.Position = UDim2.new(0, 10, 0, posY)
-            Button.Size = UDim2.new(1, -20, 0, 30)
-            Button.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
-            Button.TextColor3 = Color3.new(1, 1, 1)
-            Button.MouseButton1Click:Connect(callback)
-        end
-
-        addButton("💾 Save", 90, function()
-    local editedUID = UIDBox.Text
-    local editedScript = ScriptBox.Text
-
-    if editedScript == "" then
-        Fluent:Notify({ Title = "Missing Info", Content = "Please enter script content.", Duration = 3 })
-        return
-    end
-
-    local filename
-    if editedUID == "" then
-        filename = "default_script.lua"
-    else
-        filename = editedUID .. "_script.lua"
-    end
-
-    local path = fixedScriptFolder .. "/" .. filename
-
-    if isfile(path) then
-        Fluent:Notify({ Title = "Overwrite Warning", Content = "Script already exists, overwriting.", Duration = 3 })
-    end
-
-    -- Lưu nội dung: nếu có UID thì lưu UID + script, nếu không thì chỉ lưu script
-    local content = editedUID == "" and editedScript or (editedUID .. "\n" .. editedScript)
-    writefile(path, content)
-
-    UIDDropdown:SetValues(getUIDList())
-    Fluent:Notify({ Title = "Saved", Content = "Script added as " .. filename, Duration = 3 })
-    ScreenGui:Destroy()
-end)
-
-        addButton("❌ Cancel", 130, function()
-            ScreenGui:Destroy()
-        end)
-    end
-})
-
-Tabs.Scripts:AddButton({
-    Title = "Manage Selected ScriptUID",
-    Callback = function()
-        if not SelectedUID then
-            Fluent:Notify({ Title = "Select ScriptUID", Content = "Please select a ScriptUID", Duration = 3 }); return
-        end
-
-        local filePath
-        for _, f in ipairs(listfiles(fixedScriptFolder)) do
-            if f:match("([^/\\]+)%.lua$"):find("^" .. SelectedUID .. "_") then
-                filePath = f
-                break
-            end
-        end
-
-        if not filePath or not isfile(filePath) then
-            Fluent:Notify({ Title = "Missing File", Content = "Script file not found.", Duration = 3 })
-            return
-        end
-
-        local success, content = pcall(readfile, filePath)
-        if not success or not content then
-            Fluent:Notify({ Title = "Error", Content = "Failed to read script file.", Duration = 3 })
-            return
-        end
-
-        local uidLine, scriptContent = content:match("([^\n]*)\n(.+)")
-        local ScreenGui = Instance.new("ScreenGui", game.CoreGui)
-        ScreenGui.Name = "DuckXHubManageGui"
-
-        local Frame = Instance.new("Frame", ScreenGui)
-        Frame.Size = UDim2.new(0, 400, 0, 300)
-        Frame.Position = UDim2.new(0.5, -200, 0.5, -150)
-        Frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-        Frame.BorderSizePixel = 0
-
-        local UIDBox, ScriptBox
-
-        local function addTextBox(labelText, defaultText, posY)
-            local Label = Instance.new("TextLabel", Frame)
-            Label.Text = labelText
-            Label.Position = UDim2.new(0, 10, 0, posY)
-            Label.Size = UDim2.new(0, 80, 0, 25)
-            Label.TextColor3 = Color3.new(1, 1, 1)
-            Label.BackgroundTransparency = 1
-            Label.TextXAlignment = Enum.TextXAlignment.Left
-
-            local TextBox = Instance.new("TextBox", Frame)
-            TextBox.Text = defaultText
-            TextBox.Position = UDim2.new(0, 100, 0, posY)
-            TextBox.Size = UDim2.new(0, 280, 0, 25)
-            TextBox.TextColor3 = Color3.new(1, 1, 1)
-            TextBox.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-            TextBox.ClearTextOnFocus = false
-            return TextBox
-        end
-
-        UIDBox = addTextBox("UID:", uidLine or SelectedUID, 10)
-        ScriptBox = addTextBox("Script:", scriptContent or "", 45)
-
-        local function addButton(text, posY, callback)
-            local Button = Instance.new("TextButton", Frame)
-            Button.Text = text
-            Button.Position = UDim2.new(0, 10, 0, posY)
-            Button.Size = UDim2.new(1, -20, 0, 30)
-            Button.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
-            Button.TextColor3 = Color3.new(1, 1, 1)
-            Button.MouseButton1Click:Connect(callback)
-        end
-
-        addButton("💾 Save", 90, function()
-            local editedUID = UIDBox.Text
-            local editedScript = ScriptBox.Text
-            if editedUID == "" or editedScript == "" then
-                Fluent:Notify({ Title = "Missing Info", Content = "UID or script is missing.", Duration = 3 }); return
-            end
-            delfile(filePath)
-            local newFile = fixedScriptFolder .. "/" .. editedUID .. "_script.lua"
-            writefile(newFile, editedUID .. "\n" .. editedScript)
-            UIDDropdown:SetValues(getUIDList())
-            Fluent:Notify({ Title = "Saved", Content = "Script updated.", Duration = 3 })
-        end)
-
-        addButton("▶️ Run", 130, function()
-            local editedScript = ScriptBox.Text
-            local ok, err = pcall(function()
-                loadstring(editedScript)()
-            end)
-            if ok then
-                Fluent:Notify({ Title = "Executed", Content = "Script for UID has run", Duration = 3 })
-            else
-                Fluent:Notify({ Title = "Error", Content = "Execution failed: " .. tostring(err), Duration = 3 })
-            end
-        end)
-
-        addButton("🗑 Delete", 170, function()
-            delfile(filePath)
-            UIDDropdown:SetValues(getUIDList())
-            Fluent:Notify({ Title = "Deleted", Content = "Script deleted.", Duration = 3 })
-            ScreenGui:Destroy()
-        end)
-
-        addButton("❌ Close", 210, function()
-            ScreenGui:Destroy()
-        end)
-    end
-})
-
-Tabs.Scripts:AddToggle("AutoRunToggle", {
-    Title = "Auto Run Selected Script",
-    Default = false
-})
-
-local playerParagraph = Tabs.Server:AddParagraph({
-    Title = "Player Count",
-    Content = "Players in server: " .. tostring(#Players:GetPlayers())
-})
-
-Players.PlayerAdded:Connect(function()
-    playerParagraph:SetContent("Players in server: " .. tostring(#Players:GetPlayers()))
-end)
-
-Players.PlayerRemoving:Connect(function()
-    playerParagraph:SetContent("Players in server: " .. tostring(#Players:GetPlayers()))
-end)
-
-
-Tabs.Server:AddInput("JobIdInput", {
-    Title = "JobId",
-    Placeholder = "Paste JobId here",
-    Callback = function(input)
-        getgenv()._JoinJobId = input
-    end
-})
-
-Tabs.Server:AddButton({
-    Title = "Join Job by Id",
-    Callback = function()
-        if getgenv()._JoinJobId then
-            TeleportService:TeleportToPlaceInstance(game.PlaceId, getgenv()._JoinJobId)
-        else
-            Fluent:Notify({ Title = "Missing JobId", Content = "Please enter a JobId first.", Duration = 3 })
-        end
-    end
-})
-
-Tabs.Server:AddButton({
-    Title = "Copy Current JobId",
-    Callback = function()
-        setclipboard(game.JobId)
-        Fluent:Notify({ Title = "Copied", Content = "Current JobId copied to clipboard.", Duration = 3 })
-    end
-})
-
-Tabs.Server:AddButton({
-    Title = "Auto Hop Server",
-    Callback = function()
-        local function serverHop()
-            local Servers = game:HttpGet("https://games.roblox.com/v1/games/" .. game.PlaceId .. "/servers/Public?sortOrder=Asc&limit=100")
-            Servers = HttpService:JSONDecode(Servers)
-            for _, v in pairs(Servers.data) do
-                if v.playing < v.maxPlayers and v.id ~= game.JobId then
-                    TeleportService:TeleportToPlaceInstance(game.PlaceId, v.id)
-                    break
-                end
-            end
-        end
-        serverHop()
-    end
-})
-
--- Addons
+-- Hand the library over to our managers
 SaveManager:SetLibrary(Fluent)
 InterfaceManager:SetLibrary(Fluent)
+
+-- Ignore keys that are used by ThemeManager.
+-- (we dont want configs to save themes, do we?)
 SaveManager:IgnoreThemeSettings()
+
+-- You can add indexes of elements the save manager should ignore
 SaveManager:SetIgnoreIndexes({})
-InterfaceManager:SetFolder("DuckXHub")
-if not isfolder("DuckXHub/Settings") then makefolder("DuckXHub/Settings") end
-SaveManager:SetFolder("DuckXHub/Settings")
+
+-- use case for doing it this way:
+-- a script hub could have themes in a global folder
+-- and game configs in a separate folder per game
+InterfaceManager:SetFolder("FluentScriptHub")
+SaveManager:SetFolder("FluentScriptHub/specific-game")
+
 InterfaceManager:BuildInterfaceSection(Tabs.Settings)
 SaveManager:BuildConfigSection(Tabs.Settings)
 
--- Auto-run UID script if enabled and file exists
-task.spawn(function()
-    task.wait(1)
-    local autoRun = Options and Options.AutoRunToggle and Options.AutoRunToggle.Value or false
-    if not autoRun then return end
-
-    local uid = tostring(LocalPlayer.UserId)
-    local uidFile, defaultFile = nil, fixedScriptFolder .. "/default_script.lua"
-
-    -- Tìm file khớp UID
-    for _, f in ipairs(listfiles(fixedScriptFolder)) do
-        if f:match("^.-/" .. uid .. "_.*%.lua$") then
-            uidFile = f
-            break
-        end
-    end
-
-    local function tryRun(path, isUID)
-    local success, content = pcall(readfile, path)
-    if not success or not content or #content == 0 then return false end
-
-    local script
-    if isUID then
-        local uidLine, scriptContent = content:match("([^\n]*)\n(.+)")
-        if tostring(uidLine) ~= uid or not scriptContent then return false end
-        script = scriptContent
-    else
-        script = content
-    end
-
-    local ok, err = pcall(function()
-        loadstring(script)()
-    end)
-    if ok then
-        Fluent:Notify({
-            Title = "AutoRun",
-            Content = "Running " .. path:match("([^/\\]+)$"),
-            Duration = 3
-        })
-    else
-        Fluent:Notify({
-            Title = "AutoRun Error",
-            Content = "Script execution failed: " .. tostring(err),
-            Duration = 3
-        })
-    end
-    return ok
-end
-
-    -- Ưu tiên chạy script UID, nếu không có thì chạy default
-    if uidFile then
-        tryRun(uidFile, true)
-    elseif isfile(defaultFile) then
-        tryRun(defaultFile, false)
-    end
-end)
-
-local VirtualInputManager = game:GetService("VirtualInputManager")
-
-local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "DuckXHubToggleMenu"
-ScreenGui.ResetOnSpawn = false
-ScreenGui.IgnoreGuiInset = true
-ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Global
-ScreenGui.Parent = game:GetService("CoreGui")
-
-local ImageButton = Instance.new("ImageButton")
-ImageButton.Parent = ScreenGui
-ImageButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-ImageButton.BorderSizePixel = 0
-ImageButton.Position = UDim2.new(0.02, 0, 0.2, 0)
-ImageButton.Size = UDim2.new(0, 50, 0, 50)
-ImageButton.Image = "rbxthumb://type=GamePass&id=243367649&w=150&h=150"
-ImageButton.Draggable = true -- kéo được
-ImageButton.AutoButtonColor = true
-
-local UICorner = Instance.new("UICorner")
-UICorner.CornerRadius = UDim.new(1, 0)
-UICorner.Parent = ImageButton
-
-ImageButton.MouseButton1Click:Connect(function()
-	local minimizeKey = (getgenv().Fluent and getgenv().Fluent._minimizeKey) or Enum.KeyCode.LeftControl
-	VirtualInputManager:SendKeyEvent(true, minimizeKey, false, game)
-	task.wait(0.05)
-	VirtualInputManager:SendKeyEvent(false, minimizeKey, false, game)
-end)
 
 Window:SelectTab(1)
-Fluent:Notify({ Title = "DuckXHub", Content = "Script Loaded", Duration = 3 })
+
+Fluent:Notify({
+    Title = "Fluent",
+    Content = "The script has been loaded.",
+    Duration = 8
+})
+
+-- You can use the SaveManager:LoadAutoloadConfig() to load a config
+-- which has been marked to be one that auto loads!
 SaveManager:LoadAutoloadConfig()
