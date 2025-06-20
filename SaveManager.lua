@@ -118,7 +118,7 @@ local SaveManager = {} do
 
 		for _, option in next, decoded.objects do
 			if self.Parser[option.type] then
-				task.spawn(function() self.Parser[option.type].Load(option.idx, option) end) -- task.spawn() so the config loading wont get stuck.
+				task.spawn(function() self.Parser[option.type].Load(option.idx, option) end)
 			end
 		end
 
@@ -178,40 +178,57 @@ local SaveManager = {} do
         self.Options = library.Options
 	end
 
+	-- Improved autoload logic:
+	-- - Only loads if config exists
+	-- - Safe against .json or whitespace in autoload.txt
+	-- - Notifies user if autoload fails or not set
 	function SaveManager:LoadAutoloadConfig()
-		if isfile(self.Folder .. "/settings/autoload.txt") then
-			local name = readfile(self.Folder .. "/settings/autoload.txt")
-			-- FIX: Remove file extension if present
-			name = name:gsub("%.json$", "")
-			-- Check if config exists, otherwise refresh list
-			local configFile = self.Folder .. "/settings/" .. name .. ".json"
-			if not isfile(configFile) then
-				self.Library:Notify({
-					Title = "Interface",
-					Content = "Config loader",
-					SubContent = "Autoload config file does not exist: " .. name,
-					Duration = 7
-				})
-				return false
-			end
-
-			local success, err = self:Load(name)
-			if not success then
-				return self.Library:Notify({
-					Title = "Interface",
-					Content = "Config loader",
-					SubContent = "Failed to load autoload config: " .. err,
-					Duration = 7
-				})
-			end
-
+		local autoloadPath = self.Folder .. "/settings/autoload.txt"
+		if not isfile(autoloadPath) then
 			self.Library:Notify({
-				Title = "Interface",
-				Content = "Config loader",
-				SubContent = string.format("Auto loaded config %q", name),
+				Title = "Config",
+				Content = "Autoload not set.",
+				Duration = 6
+			})
+			return false, "autoload not set"
+		end
+
+		local name = readfile(autoloadPath):gsub("%.json$", ""):gsub("^%s*(.-)%s*$", "%1") -- trim whitespace and remove .json
+		if name == "" then
+			self.Library:Notify({
+				Title = "Config",
+				Content = "Autoload config name is empty.",
 				Duration = 7
 			})
+			return false, "empty autoload name"
 		end
+
+		local configFile = self.Folder .. "/settings/" .. name .. ".json"
+		if not isfile(configFile) then
+			self.Library:Notify({
+				Title = "Config",
+				Content = "Autoload config does not exist: " .. name,
+				Duration = 8
+			})
+			return false, "file not found"
+		end
+
+		local success, err = self:Load(name)
+		if not success then
+			self.Library:Notify({
+				Title = "Config",
+				Content = "Autoload failed: " .. tostring(err),
+				Duration = 8
+			})
+			return false, "load failed"
+		end
+
+		self.Library:Notify({
+			Title = "Config",
+			Content = "Auto loaded config: " .. name,
+			Duration = 6
+		})
+		return true
 	end
 
 	function SaveManager:BuildConfigSection(tab)
@@ -308,12 +325,19 @@ local SaveManager = {} do
 		local AutoloadButton
 		AutoloadButton = section:AddButton({Title = "Set as autoload", Description = "Current autoload config: none", Callback = function()
 			local name = SaveManager.Options.SaveManager_ConfigList.Value
+			if not name or tostring(name):gsub(" ", "") == "" then
+				self.Library:Notify({
+					Title = "Config",
+					Content = "Select a config first!",
+					Duration = 7
+				})
+				return
+			end
 			writefile(self.Folder .. "/settings/autoload.txt", name)
 			AutoloadButton:SetDesc("Current autoload config: " .. name)
 			self.Library:Notify({
-				Title = "Interface",
-				Content = "Config loader",
-				SubContent = string.format("Set %q to auto load", name),
+				Title = "Config",
+				Content = "Set " .. name .. " to autoload.",
 				Duration = 7
 			})
 		end})
