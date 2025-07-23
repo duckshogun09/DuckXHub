@@ -225,6 +225,63 @@ local SaveManager = {} do
 		return true
 	end
 
+	function SaveManager:RemoveAutoloadConfig()
+		local autoloadPath = self.Folder .. "/settings/autoload.txt"
+		if isfile(autoloadPath) then
+			delfile(autoloadPath)
+			self.Library:Notify({
+				Title = "Config",
+				Content = "Autoload config removed.",
+				Duration = 5
+			})
+		else
+			self.Library:Notify({
+				Title = "Config",
+				Content = "No autoload config to remove.",
+				Duration = 5
+			})
+		end
+	end
+
+	function SaveManager:DeleteConfig(name)
+		if not name or tostring(name):gsub(" ", "") == "" then
+			self.Library:Notify({
+				Title = "Config",
+				Content = "No config selected to delete.",
+				Duration = 7
+			})
+			return
+		end
+		local file = self.Folder .. "/settings/" .. name .. ".json"
+		if isfile(file) then
+			delfile(file)
+			self.Library:Notify({
+				Title = "Config",
+				Content = "Deleted config: " .. name,
+				Duration = 7
+			})
+			-- Remove from autoload if it's the autoload config
+			local autoloadPath = self.Folder .. "/settings/autoload.txt"
+			if isfile(autoloadPath) then
+				local autoloadName = readfile(autoloadPath):gsub("%.json$", ""):gsub("^%s*(.-)%s*$", "%1")
+				if autoloadName == name then
+					delfile(autoloadPath)
+					self.Library:Notify({
+						Title = "Config",
+						Content = "Autoload config was deleted too.",
+						Duration = 6
+					})
+				end
+			end
+		else
+			self.Library:Notify({
+				Title = "Config",
+				Content = "Config file not found: " .. name,
+				Duration = 7
+			})
+		end
+	end
+
 	function SaveManager:BuildConfigSection(tab)
 		assert(self.Library, "Must set SaveManager.Library")
 
@@ -334,6 +391,26 @@ local SaveManager = {} do
 				Content = "Set " .. name .. " to autoload.",
 				Duration = 7
 			})
+		end})
+
+		section:AddButton({Title = "Remove autoload", Callback = function()
+			self:RemoveAutoloadConfig()
+			AutoloadButton:SetDesc("Current autoload config: none")
+		end})
+
+		section:AddButton({Title = "Delete config", Callback = function()
+			local name = SaveManager.Options.SaveManager_ConfigList.Value
+			self:DeleteConfig(name)
+			SaveManager.Options.SaveManager_ConfigList:SetValues(self:RefreshConfigList())
+			SaveManager.Options.SaveManager_ConfigList:SetValue(nil)
+			-- also update autoload button desc if needed
+			local autoloadPath = self.Folder .. "/settings/autoload.txt"
+			if isfile(autoloadPath) then
+				local autoloadName = readfile(autoloadPath):gsub("%.json$", ""):gsub("^%s*(.-)%s*$", "%1")
+				AutoloadButton:SetDesc("Current autoload config: " .. autoloadName)
+			else
+				AutoloadButton:SetDesc("Current autoload config: none")
+			end
 		end})
 
 		if isfile(self.Folder .. "/settings/autoload.txt") then
