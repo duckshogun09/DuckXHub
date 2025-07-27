@@ -76,11 +76,11 @@ return {
     VirtualCurrencies = { "Sheckles", "Honey", "SummerCoins" },
 
     MutationList = {
-        "Tranquil",
-        "Windstruck",
-        "Cloudtouched",
-        "Radiant",
-        "Panda",
-        "Fox"
+        "Windstruck", "Wet", "Moonlit", "Chilled", "Choc", "pollinated", "Sandy", "Clay", "Verdant", "Bloodlit",
+        "Twisted", "Drenched", "HoneyGlazed", "Cloudtouched", "Frozen", "Tempestuous", "Aurora", "Shocked", "Celestial", "Dawnboud",
+        "Burnt", "Wiltproof", "Plasma", "Heavenly", "Fried", "Static", "Amber", "Cooked", "Toxic", "Chakra",
+        "Eclipsed", "CorruptChakra", "Tranquil", "OldAmber", "Corrupted", "Zombified", "Molten", "Ceramic", "HarmonizedChakra", "Enlighttened",
+        "AncientAmber", "Subzero", "Blitzshock", "Friendbound", "Infected", "Jackpot", "Radioactive", "Sundried", "FoxfireChakra", "CorruptedFoxfireChakra",
+        "Paradisal", "Alienlike", "Galactic", "Disco", "Meteoric", "Touchdown", "Voidtouched", "Equinox", "Cosmic", "Alignment"
     }
 }
