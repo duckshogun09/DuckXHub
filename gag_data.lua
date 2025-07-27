@@ -76,11 +76,13 @@ return {
     VirtualCurrencies = { "Sheckles", "Honey", "SummerCoins" },
 
     MutationList = {
-        "Windstruck", "Wet", "Moonlit", "Chilled", "Choc", "Pollinated", "Sandy", "Clay", "Verdant", "Bloodlit",
-        "Twisted", "Drenched", "HoneyGlazed", "Cloudtouched", "Frozen", "Tempestuous", "Aurora", "Shocked", "Celestial", "Dawnboud",
-        "Burnt", "Wiltproof", "Plasma", "Heavenly", "Fried", "Static", "Amber", "Cooked", "Toxic", "Chakra",
-        "Eclipsed", "CorruptChakra", "Tranquil", "OldAmber", "Corrupt", "Zombified", "Molten", "Ceramic", "HarmonizedChakra", "Enlighttened",
-        "AncientAmber", "Subzero", "Blitzshock", "Friendbound", "Infected", "Jackpot", "Radioactive", "Sundried", "FoxfireChakra", "CorruptedFoxfireChakra",
-        "Paradisal", "Alienlike", "Galactic", "Disco", "Meteoric", "Touchdown", "Voidtouched", "Equinox", "Cosmic", "Alignment"
+        "Wet", "Shocked", "Chilled", "Frozen", "Moonlit", "Bloodlit", "Celestial", "Zombified",
+        "Disco", "Pollinated", "HoneyGlazed", "Voidtouched", "Twisted", "Plasma", "Heavenly", "Choc",
+        "Meteoric", "Burnt", "Cooked", "Molten", "Dawnbound", "Alienlike", "Galactic", "Verdant",
+        "Paradisal", "Sundried", "Windstruck", "Drenched", "Wilt", "Wiltproof", "Aurora", "Fried",
+        "Cloudtouched", "Sandy", "Clay", "Ceramic", "Amber", "OldAmber", "AncientAmber", "Tempestuous",
+        "Friendbound", "Infected", "Tranquil", "Chakra", "Foxfire Chakra", "Radioactive", "Corrupt",
+        "Corrupt Chakra", "Corrupt Foxfire Chakra", "Harmonised Chakra", "Subzero", "Jackpot",
+        "Touchdown", "Blitzshock"
     }
 }
