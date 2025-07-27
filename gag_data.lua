@@ -72,5 +72,15 @@ return {
         },
 
     },
-    VirtualCurrencies = { "Sheckles", "Honey", "SummerCoins" }
+
+    VirtualCurrencies = { "Sheckles", "Honey", "SummerCoins" },
+
+    MutationList = {
+        "Tranquil",
+        "Windstruck",
+        "Cloudtouched",
+        "Radiant",
+        "Panda",
+        "Fox"
+    }
 }
