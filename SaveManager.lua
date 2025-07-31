@@ -45,6 +45,8 @@ local SaveManager = {} do
     end
 
     function SaveManager:Save(name)
+        if not self.AutoSave then return false end
+
         local fullPath = self.Folder .. "/settings/" .. name .. ".json"
         local data = { objects = {} }
 
@@ -170,6 +172,8 @@ local SaveManager = {} do
                 local path = self.Folder .. "/settings/" .. playerId .. ".json"
                 if isfile(path) then delfile(path) end
 
+                SaveManager.AutoSave = false
+
                 for _, opt in pairs(self.Options) do
                     pcall(function()
                         if opt.Default then
@@ -180,9 +184,13 @@ local SaveManager = {} do
 
                 self.Library:Notify({
                     Title = "Config",
-                    Content = "Config reset!",
-                    Duration = 5
+                    Content = "Config reset! AutoSave resumes in 10s",
+                    Duration = 3
                 })
+
+                task.delay(10, function()
+                    SaveManager.AutoSave = true
+                end)
             end
         })
 
