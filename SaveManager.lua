@@ -141,7 +141,7 @@ local SaveManager = {} do
 
     function SaveManager:BuildConfigSection(tab)
         assert(self.Library, "SaveManager: Library not set.")
-        local section = tab:AddSection("Auto Config")
+        local section = tab:AddSection("Config")
         local playerId = tostring(Players.LocalPlayer.UserId)
 
         section:AddButton({
