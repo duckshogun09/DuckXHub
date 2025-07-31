@@ -68,6 +68,7 @@ local SaveManager = {} do
 	}
 
 	function SaveManager:SetIgnoreIndexes(list)
+		list = list or {}
 		for _, key in next, list do
 			self.Ignore[key] = true
 		end
@@ -89,7 +90,7 @@ local SaveManager = {} do
 			objects = {}
 		}
 
-		for idx, option in next, SaveManager.Options do
+		for idx, option in next, SaveManager.Options or {} do
 			if not self.Parser[option.Type] then continue end
 			if self.Ignore[idx] then continue end
 
@@ -116,7 +117,7 @@ local SaveManager = {} do
 		local success, decoded = pcall(httpService.JSONDecode, httpService, readfile(file))
 		if not success then return false, "decode error" end
 
-		for _, option in next, decoded.objects do
+		for _, option in next, (decoded and decoded.objects) or {} do
 			if self.Parser[option.type] then
 				task.spawn(function() self.Parser[option.type].Load(option.idx, option) end)
 			end
@@ -146,7 +147,7 @@ local SaveManager = {} do
 	end
 
 	function SaveManager:RefreshConfigList()
-		local list = listfiles(self.Folder .. "/settings")
+		local list = listfiles(self.Folder .. "/settings") or {}
 
 		local out = {}
 		for i = 1, #list do
