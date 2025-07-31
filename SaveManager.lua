@@ -57,7 +57,6 @@ local SaveManager = {} do
         local success, encoded = pcall(httpService.JSONEncode, httpService, data)
         if success then
             writefile(fullPath, encoded)
-            print("[SaveManager] Auto-saved")
             return true
         end
         return false
@@ -132,7 +131,7 @@ local SaveManager = {} do
 
         self:Load(playerId)
         self:HookAutoSave(playerId)
-        self:StartAutoSaveTimer(3, playerId) -- 🕒 Tự động lưu mỗi 3 giây
+        self:StartAutoSaveTimer(3, playerId)
     end
 
     function SaveManager:SetLibrary(library)
@@ -147,7 +146,7 @@ local SaveManager = {} do
 
         section:AddButton({
             Title = "Copy config",
-            Description = "Tạo bản sao config",
+            Description = "Create a copy of the config",
             Callback = function()
                 local newName = "Copy_" .. os.time()
                 local src = self.Folder .. "/settings/" .. playerId .. ".json"
@@ -157,7 +156,7 @@ local SaveManager = {} do
                     writefile(dest, readfile(src))
                     self.Library:Notify({
                         Title = "Config",
-                        Content = "Đã copy config: " .. newName,
+                        Content = "Copied config: " .. newName,
                         Duration = 5
                     })
                 end
@@ -166,7 +165,7 @@ local SaveManager = {} do
 
         section:AddButton({
             Title = "Reset config",
-            Description = "Xóa config và reset về mặc định",
+            Description = "Delete config and reset to default",
             Callback = function()
                 local path = self.Folder .. "/settings/" .. playerId .. ".json"
                 if isfile(path) then delfile(path) end
@@ -181,7 +180,7 @@ local SaveManager = {} do
 
                 self.Library:Notify({
                     Title = "Config",
-                    Content = "Đã reset config!",
+                    Content = "Config reset!",
                     Duration = 5
                 })
             end
