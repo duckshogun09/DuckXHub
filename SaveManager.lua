@@ -5,6 +5,7 @@ local SaveManager = {} do
     SaveManager.Folder = "DuckXHub"
     SaveManager.Ignore = {}
     SaveManager.AutoSave = true
+    SaveManager.IsResetting = false
 
     SaveManager.Parser = {
         Toggle = {
@@ -94,7 +95,7 @@ local SaveManager = {} do
             local originalSet = option.SetValue
             option.SetValue = function(this, ...)
                 originalSet(this, ...)
-                if SaveManager.AutoSave then
+                if SaveManager.AutoSave and not SaveManager.IsResetting then
                     SaveManager:Save(configName)
                 end
             end
@@ -103,7 +104,7 @@ local SaveManager = {} do
                 local originalRGB = option.SetValueRGB
                 option.SetValueRGB = function(this, ...)
                     originalRGB(this, ...)
-                    if SaveManager.AutoSave then
+                    if SaveManager.AutoSave and not SaveManager.IsResetting then
                         SaveManager:Save(configName)
                     end
                 end
@@ -116,7 +117,7 @@ local SaveManager = {} do
         task.spawn(function()
             while true do
                 task.wait(interval)
-                if SaveManager.AutoSave then
+                if SaveManager.AutoSave and not SaveManager.IsResetting then
                     SaveManager:Save(configName)
                 end
             end
@@ -169,27 +170,35 @@ local SaveManager = {} do
             Title = "Reset config",
             Description = "Delete config and reset to default",
             Callback = function()
+                self.Library:Notify({
+                    Title = "Config",
+                    Content = "Resetting config in 15s... Please wait.",
+                    Duration = 6
+                })
+
+                SaveManager.AutoSave = false
+                SaveManager.IsResetting = true
+
                 local path = self.Folder .. "/settings/" .. playerId .. ".json"
                 if isfile(path) then delfile(path) end
 
-                SaveManager.AutoSave = false
+                task.delay(15, function()
+                    for _, opt in pairs(self.Options) do
+                        pcall(function()
+                            if opt.Default then
+                                opt:SetValue(opt.Default)
+                            end
+                        end)
+                    end
 
-                for _, opt in pairs(self.Options) do
-                    pcall(function()
-                        if opt.Default then
-                            opt:SetValue(opt.Default)
-                        end
-                    end)
-                end
-
-                self.Library:Notify({
-                    Title = "Config",
-                    Content = "Config reset! AutoSave resumes in 10s",
-                    Duration = 3
-                })
-
-                task.delay(10, function()
                     SaveManager.AutoSave = true
+                    SaveManager.IsResetting = false
+
+                    self.Library:Notify({
+                        Title = "Config",
+                        Content = "Config reset completed.",
+                        Duration = 5
+                    })
                 end)
             end
         })
