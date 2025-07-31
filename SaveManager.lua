@@ -57,7 +57,7 @@ local SaveManager = {} do
         local success, encoded = pcall(httpService.JSONEncode, httpService, data)
         if success then
             writefile(fullPath, encoded)
-            print("[SaveManager] Auto-saved") -- ✅ debug
+            print("[SaveManager] Auto-saved")
             return true
         end
         return false
@@ -110,6 +110,18 @@ local SaveManager = {} do
         end
     end
 
+    function SaveManager:StartAutoSaveTimer(interval, configName)
+        interval = interval or 3
+        task.spawn(function()
+            while true do
+                task.wait(interval)
+                if SaveManager.AutoSave then
+                    SaveManager:Save(configName)
+                end
+            end
+        end)
+    end
+
     function SaveManager:AutoSetup()
         local playerId = tostring(Players.LocalPlayer.UserId)
         local configFile = self.Folder .. "/settings/" .. playerId .. ".json"
@@ -120,6 +132,7 @@ local SaveManager = {} do
 
         self:Load(playerId)
         self:HookAutoSave(playerId)
+        self:StartAutoSaveTimer(3, playerId) -- 🕒 Tự động lưu mỗi 3 giây
     end
 
     function SaveManager:SetLibrary(library)
