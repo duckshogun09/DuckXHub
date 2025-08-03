@@ -70,7 +70,6 @@ return {
         ["Honey Crafters Crate"] = {
             ["Bee Crate"] = 1, ["Honey"] = 12
         },
-
     },
 
     VirtualCurrencies = { "Sheckles", "Honey", "SummerCoins" },
@@ -84,5 +83,40 @@ return {
         "Friendbound", "Infected", "Tranquil", "Chakra", "Foxfire Chakra", "Radioactive", "Corrupt",
         "Corrupt Chakra", "Corrupt Foxfire Chakra", "Harmonised Chakra", "Subzero", "Jackpot",
         "Touchdown", "Blitzshock"
+    },
+
+    CookingRecipes = {
+        Salad = {
+            Common = {
+                { Tomato = 2 },
+                { Strawberry = 1, BellPepper = 1 }
+            },
+            Uncommon = {
+                { Tomato = 3 },
+                { BellPepper = 2 }
+            }
+        },
+        FruitMix = {
+            Rare = {
+                { Strawberry = 2 },
+                { Blueberry = 1 }
+            },
+            Epic = {
+                { Strawberry = 3 },
+                { Blueberry = 2, Apple = 1 }
+            }
+        },
+        VeggieBowl = {
+            Uncommon = {
+                { Carrot = 1 },
+                { Tomato = 2 }
+            }
+        },
+        GoldenStew = {
+            Legendary = {
+                { GoldenCarrot = 1 },
+                { GoldBerry = 2 }
+            }
+        }
     }
 }
