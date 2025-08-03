@@ -94,80 +94,81 @@ return {
                 { Tomato = 5 }
             },
             Legendary = {
-                { Blood Banana = 2, Tomato = 2 },
+                { ["Blood Banana"] = 2, Tomato = 2 },
                 { Bamboo = 1, Mango = 1, Pineapple = 1, Tomato = 1, Beanstalk = 1 }
             },
             Mythical = {
-                { Tomato = 1, Giant Pinecone = 1 },
-                { Sugar Apple = 2, Pepper = 1, Tomato = 1}
+                { Tomato = 1, ["Giant Pinecone"] = 1 },
+                { ["Sugar Apple"] = 2, Pepper = 1, Tomato = 1 }
             },
             Divine = {
                 { Beanstalk = 4, Tomato = 1 },
-                { Bone Blossom = 2, Pineapple = 1, Pepper = 1, Tomato = 1}
+                { ["Bone Blossom"] = 2, Pineapple = 1, Pepper = 1, Tomato = 1 }
             },
             Prismatic = {
-                { Tomato = 1, Bone Blossom = 4 }
+                { Tomato = 1, ["Bone Blossom"] = 4 }
             }
         },
+    
         Sandwich = {
             Normal = {
                 { Tomato = 2, Corn = 1 }
             },
             Legendary = {
                 { Cacao = 1, Tomato = 1, Corn = 1 },
-                { Tomato = 1, Corn = 1, ElderStrawberry = 1 }
+                { Tomato = 1, Corn = 1, ["Elder Strawberry"] = 1 }
             },
             Mythical = {
-                { GiantPinecone = 2, Tomato = 1, Corn = 1 }
+                { ["Giant Pinecone"] = 2, Tomato = 1, Corn = 1 }
             },
             Divine = {
-                { BoneBlossom = 3, Tomato = 1, Corn = 1 }
+                { ["Bone Blossom"] = 3, Tomato = 1, Corn = 1 }
             },
             Prismatic = {
-                { Tomato = 1, Banana = 1, BoneBlossom = 3 }
+                { Tomato = 1, Banana = 1, ["Bone Blossom"] = 3 }
             }
         },
-        
+    
         Pie = {
             Normal = {
                 { Corn = 1, Pumpkin = 1 }
             },
-            Mythical = {
-                { Apple = 1, Pumpkin = 1 }
-            },
             Legendary = {
                 { Corn = 1, Coconut = 1 }
             },
+            Mythical = {
+                { Apple = 1, Pumpkin = 1 }
+            },
             Divine = {
                 { Coconut = 1, Beanstalk = 1 },
-                { Coconut = 1, Pepper = 1, ElderStrawberry = 2, Celestiberry = 1 },
-                { SugarApple = 3, Pumpkin = 1 }
+                { Coconut = 1, Pepper = 1, ["Elder Strawberry"] = 2, Celestiberry = 1 },
+                { ["Sugar Apple"] = 3, Pumpkin = 1 }
             },
             Prismatic = {
-                { Pumpkin = 1, BoneBlossom = 4 },
-                { Coconut = 1, BoneBlossom = 2 }
+                { Pumpkin = 1, ["Bone Blossom"] = 4 },
+                { Coconut = 1, ["Bone Blossom"] = 2 }
             }
         },
-        
+    
         Waffle = {
             Normal = {
                 { Strawberry = 1, Coconut = 1 }
             },
             Legendary = {
-                { SugarApple = 1, Watermelon = 1, Corn = 1, Sugarglaze = 1 }
+                { ["Sugar Apple"] = 1, Watermelon = 1, Corn = 1, Sugarglaze = 1 }
             },
             Mythical = {
-                { TranquilBloom = 1, Starfruit = 1, Coconut = 1 },
-                { Grape = 1, Coconut = 1, DragonFruit = 1, Cactus = 1, Peach = 1 }
+                { ["Tranquil Bloom"] = 1, Starfruit = 1, Coconut = 1 },
+                { Grape = 1, Coconut = 1, ["Dragon Fruit"] = 1, Cactus = 1, Peach = 1 }
             },
             Divine = {
-                { SugarApple = 1, Coconut = 1 }
+                { ["Sugar Apple"] = 1, Coconut = 1 }
             },
             Prismatic = {
-                { BoneBlossom = 3, SugarApple = 1, Coconut = 1 }
+                { ["Bone Blossom"] = 3, ["Sugar Apple"] = 1, Coconut = 1 }
             }
         },
-        
+    
         HotDog = {
             Normal = {
                 { Banana = 1, Pepper = 1 }
@@ -176,18 +177,18 @@ return {
                 { Pepper = 1, Corn = 1 }
             },
             Mythical = {
-                { EmberLily = 1, Corn = 1 }
+                { ["Ember Lily"] = 1, Corn = 1 }
             },
             Divine = {
-                { Corn = 1, EmberLily = 4 },
-                { BoneBlossom = 2, Beanstalk = 2, Corn = 1 }
+                { Corn = 1, ["Ember Lily"] = 4 },
+                { ["Bone Blossom"] = 2, Beanstalk = 2, Corn = 1 }
             },
             Prismatic = {
-                { Corn = 1, BoneBlossom = 4 },
-                { VioletCorn = 1, BoneBlossom = 4 }
+                { Corn = 1, ["Bone Blossom"] = 4 },
+                { ["Violet Corn"] = 1, ["Bone Blossom"] = 4 }
             }
         },
-        
+    
         IceCream = {
             Uncommon = {
                 { Blueberry = 1, Corn = 1 },
@@ -198,36 +199,36 @@ return {
                 { Pineapple = 1, Corn = 1 }
             },
             Mythical = {
-                { Banana = 1, SugarApple = 1 }
+                { Banana = 1, ["Sugar Apple"] = 1 }
             },
             Divine = {
-                { SugarApple = 3, Corn = 1 },
-                { Tomato = 1, BoneBlossom = 1, SugarApple = 1 }
+                { ["Sugar Apple"] = 3, Corn = 1 },
+                { Tomato = 1, ["Bone Blossom"] = 1, ["Sugar Apple"] = 1 }
             },
             Prismatic = {
-                { Sugarglaze = 1, SugarApple = 1, BoneBlossom = 3 }
+                { Sugarglaze = 1, ["Sugar Apple"] = 1, ["Bone Blossom"] = 3 }
             }
         },
-        
+    
         Donut = {
             Uncommon = {
-                { Corn = 2, SpikedMango = 1 },
+                { Corn = 2, ["Spiked Mango"] = 1 },
                 { Corn = 1, Blueberry = 1, Strawberry = 1 }
             },
             Legendary = {
-                { BloodBanana = 1, MoonMelon = 1 }
+                { ["Blood Banana"] = 1, ["Moon Melon"] = 1 }
             },
             Mythical = {
-                { SugarApple = 1, Corn = 2 }
+                { ["Sugar Apple"] = 1, Corn = 2 }
             },
             Divine = {
-                { BoneBlossom = 1, SugarApple = 1, Banana = 1 }
+                { ["Bone Blossom"] = 1, ["Sugar Apple"] = 1, Banana = 1 }
             },
             Prismatic = {
-                { Sugarglaze = 1, BoneBlossom = 4 }
+                { Sugarglaze = 1, ["Bone Blossom"] = 4 }
             }
         },
-        
+    
         Pizza = {
             Rare = {
                 { Banana = 1, Tomato = 1 }
@@ -237,17 +238,17 @@ return {
                 { Cactus = 1, Corn = 1, Coconut = 1 }
             },
             Mythical = {
-                { Tomato = 1, Corn = 1, Pepper = 1, SugarApple = 2 },
-                { GiantPinecone = 1, Corn = 1, Apple = 1, Mushroom = 1, Pepper = 1 }
+                { Tomato = 1, Corn = 1, Pepper = 1, ["Sugar Apple"] = 2 },
+                { ["Giant Pinecone"] = 1, Corn = 1, Apple = 1, Mushroom = 1, Pepper = 1 }
             },
             Divine = {
-                { SugarApple = 1, BoneBlossom = 1, Corn = 1 }
+                { ["Sugar Apple"] = 1, ["Bone Blossom"] = 1, Corn = 1 }
             },
             Prismatic = {
-                { Beanstalk = 1, Banana = 1, BoneBlossom = 3 }
+                { Beanstalk = 1, Banana = 1, ["Bone Blossom"] = 3 }
             }
         },
-        
+    
         Sushi = {
             Normal = {
                 { Bamboo = 4, Corn = 1 }
@@ -256,57 +257,57 @@ return {
                 { Pepper = 1, Coconut = 1, Bamboo = 1, Corn = 1 }
             },
             Mythical = {
-                { SugarApple = 3, Bamboo = 1, Corn = 1 },
-                { Bamboo = 2, BoneBlossom = 2, Corn = 1 }
+                { ["Sugar Apple"] = 3, Bamboo = 1, Corn = 1 },
+                { Bamboo = 2, ["Bone Blossom"] = 2, Corn = 1 }
             },
             Divine = {
-                { BoneBlossom = 3, Bamboo = 1, Corn = 1 }
+                { ["Bone Blossom"] = 3, Bamboo = 1, Corn = 1 }
             },
             Prismatic = {
-                { BoneBlossom = 3, VioletCorn = 1, LuckyBamboo = 1 }
+                { ["Bone Blossom"] = 3, ["Violet Corn"] = 1, ["Lucky Bamboo"] = 1 }
             }
         },
-        
+    
         Burger = {
             Legendary = {
                 { Pepper = 1, Corn = 1, Tomato = 1 }
             },
             Mythical = {
-                { Pepper = 1, Corn = 1, Tomato = 1, BoneBlossom = 1, Beanstalk = 1 }
+                { Pepper = 1, Corn = 1, Tomato = 1, ["Bone Blossom"] = 1, Beanstalk = 1 }
             },
             Divine = {
-                { BoneBlossom = 3, Corn = 1, Tomato = 1 }
+                { ["Bone Blossom"] = 3, Corn = 1, Tomato = 1 }
             },
             Prismatic = {
-                { VioletCorn = 1, Tomato = 1, BoneBlossom = 3 }
+                { ["Violet Corn"] = 1, Tomato = 1, ["Bone Blossom"] = 3 }
             }
         },
-        
+    
         Cake = {
             Uncommon = {
                 { Corn = 2, Strawberry = 2 },
                 { Blueberry = 2, Corn = 1, Tomato = 1 },
                 { Corn = 2, Watermelon = 2 },
-                { Pumpkin = 1, GiantPinecone = 1, Corn = 1, Apple = 1 }
+                { Pumpkin = 1, ["Giant Pinecone"] = 1, Corn = 1, Apple = 1 }
             },
             Rare = {
                 { Blueberry = 1, Grape = 1, Apple = 1, Corn = 1 },
                 { Banana = 2, Strawberry = 2, Pumpkin = 1 },
-                { EmberLily = 1, Peach = 2 }
+                { ["Ember Lily"] = 1, Peach = 2 }
             },
             Legendary = {
                 { Kiwi = 2, Banana = 2 }
             },
             Mythical = {
-                { SugarApple = 2, Corn = 2 }
+                { ["Sugar Apple"] = 2, Corn = 2 }
             },
             Divine = {
-                { Banana = 1, Kiwi = 1, BoneBlossom = 3 },
-                { SugarApple = 4, Corn = 1 },
-                { ElderStrawberry = 4, Corn = 1 }
+                { Banana = 1, Kiwi = 1, ["Bone Blossom"] = 3 },
+                { ["Sugar Apple"] = 4, Corn = 1 },
+                { ["Elder Strawberry"] = 4, Corn = 1 }
             },
             Prismatic = {
-                { BoneBlossom = 3, SugarApple = 1, Banana = 1 }
+                { ["Bone Blossom"] = 3, ["Sugar Apple"] = 1, Banana = 1 }
             }
         }
     }
