@@ -70,7 +70,7 @@ return {
         ["Honey Crafters Crate"] = {
             BeeCrate = 1, Honey = 12
         }
-    }
+    },
 
     VirtualCurrencies = { "Sheckles", "Honey", "SummerCoins" },
 
