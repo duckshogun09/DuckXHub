@@ -6,7 +6,7 @@ local SaveManager = {} do
 		Toggle = {
 			Save = function(idx, object) return { type = "Toggle", idx = idx, value = object.Value } end,
 			Load = function(idx, data)
-				if SaveManager.Options[idx] then 
+				if SaveManager.Options and SaveManager.Options[idx] then 
 					SaveManager.Options[idx]:SetValue(data.value)
 				end
 			end,
@@ -14,7 +14,7 @@ local SaveManager = {} do
 		Slider = {
 			Save = function(idx, object) return { type = "Slider", idx = idx, value = tostring(object.Value) } end,
 			Load = function(idx, data)
-				if SaveManager.Options[idx] then 
+				if SaveManager.Options and SaveManager.Options[idx] then 
 					SaveManager.Options[idx]:SetValue(data.value)
 				end
 			end,
@@ -22,7 +22,7 @@ local SaveManager = {} do
 		Dropdown = {
 			Save = function(idx, object) return { type = "Dropdown", idx = idx, value = object.Value, mutli = object.Multi } end,
 			Load = function(idx, data)
-				if SaveManager.Options[idx] then 
+				if SaveManager.Options and SaveManager.Options[idx] then 
 					SaveManager.Options[idx]:SetValue(data.value)
 				end
 			end,
@@ -30,7 +30,7 @@ local SaveManager = {} do
 		Colorpicker = {
 			Save = function(idx, object) return { type = "Colorpicker", idx = idx, value = object.Value:ToHex(), transparency = object.Transparency } end,
 			Load = function(idx, data)
-				if SaveManager.Options[idx] then 
+				if SaveManager.Options and SaveManager.Options[idx] then 
 					SaveManager.Options[idx]:SetValueRGB(Color3.fromHex(data.value), data.transparency)
 				end
 			end,
@@ -38,7 +38,7 @@ local SaveManager = {} do
 		Keybind = {
 			Save = function(idx, object) return { type = "Keybind", idx = idx, mode = object.Mode, key = object.Value } end,
 			Load = function(idx, data)
-				if SaveManager.Options[idx] then 
+				if SaveManager.Options and SaveManager.Options[idx] then 
 					SaveManager.Options[idx]:SetValue(data.key, data.mode)
 				end
 			end,
@@ -46,7 +46,7 @@ local SaveManager = {} do
 		Input = {
 			Save = function(idx, object) return { type = "Input", idx = idx, text = object.Value } end,
 			Load = function(idx, data)
-				if SaveManager.Options[idx] and type(data.text) == "string" then
+				if SaveManager.Options and SaveManager.Options[idx] and type(data.text) == "string" then
 					SaveManager.Options[idx]:SetValue(data.text)
 				end
 			end,
@@ -72,9 +72,10 @@ local SaveManager = {} do
 
 	function SaveManager:Save(name, isInitial)
 		if not name then return false, "no config file is selected" end
+		if not self.Options then return false, "Options chưa sẵn sàng" end
 		local fullPath = self.Folder .. "/settings/" .. name .. ".json"
 		local data = { objects = {} }
-		for idx, option in next, SaveManager.Options or {} do
+		for idx, option in next, self.Options or {} do
 			if not self.Parser[option.Type] then continue end
 			table.insert(data.objects, self.Parser[option.Type].Save(idx, option))
 		end
@@ -90,6 +91,7 @@ local SaveManager = {} do
 
 	function SaveManager:Load(name)
 		if not name then return false, "no config file is selected" end
+		if not self.Options then return false, "Options chưa sẵn sàng" end
 		local file = self.Folder .. "/settings/" .. name .. ".json"
 		if not isfile(file) then return false, "invalid file" end
 		local success, decoded = pcall(httpService.JSONDecode, httpService, readfile(file))
@@ -103,6 +105,10 @@ local SaveManager = {} do
 	end
 
 	function SaveManager:AutoInitPlayerConfig(playerId)
+		if not self.Library or not self.Options or not playerId then
+			warn("[SaveManager] Chưa sẵn sàng để auto init player config.")
+			return
+		end
 		local configName = tostring(playerId) .. "-GAG"
 		local file = self.Folder .. "/settings/" .. configName .. ".json"
 		if not isfile(file) then
@@ -156,9 +162,9 @@ local SaveManager = {} do
 
 	function SaveManager:BuildConfigSection(tab, playerId)
 		assert(self.Library, "Must set SaveManager.Library")
+		assert(playerId, "Must provide playerId")
 		local section = tab:AddSection("Configuration")
 		section:AddButton({Title = "Reset config", Callback = function() self:ResetConfig() end})
-		-- Tự động luôn cho player
 		self:AutoInitPlayerConfig(playerId)
 	end
 
