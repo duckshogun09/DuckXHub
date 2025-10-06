@@ -1,10 +1,12 @@
 local httpService = game:GetService("HttpService")
 
-local DEFAULT_ORIG_CONFIG_PATH = "DuckXHub/settings/original_config_gag.json"
-local DEFAULT_ORIG_CONFIG = [[{"objects":[{"idx":"SelectPetsMulti","type":"Dropdown","mutli":true,"value":[]},{"idx":"AutoCollectPollinatedPlants","type":"Toggle","value":false},{"idx":"SeedShopMultiSelect","type":"Dropdown","mutli":true,"value":[]},{"idx":"MerchantItemsMultiSelect","type":"Dropdown","mutli":true,"value":[]},{"idx":"AutoPlantToggle","type":"Toggle","value":false},{"idx":"InterfaceTheme","type":"Dropdown","value":"Darker"},{"idx":"AutoPlaceEggToggle","type":"Toggle","value":false},{"idx":"GearShopMultiSelect","type":"Dropdown","mutli":true,"value":[]},{"idx":"AutoHarvestSelected","type":"Toggle","value":false},{"idx":"MinKGInput","type":"Input","text":""},{"idx":"BoostFPS","type":"Toggle","value":false},{"idx":"AutoBuyGearShop","type":"Toggle","value":false},{"idx":"EggMultiSelect","type":"Dropdown","mutli":true,"value":[]},{"idx":"BlackScreen","type":"Toggle","value":false},{"idx":"SelectMutation","type":"Dropdown","mutli":true,"value":[]},{"idx":"WebhookWhitelistPets","type":"Dropdown","mutli":true,"value":[]},{"idx":"AutoSubmitPollinatedPlants","type":"Toggle","value":false},{"idx":"SelectCropsMulti","type":"Dropdown","mutli":true,"value":[]},{"idx":"TargetVersionInput","type":"Input","text":""},{"idx":"AutoBuySelectedEggs","type":"Toggle","value":false},{"idx":"PetNameMultiSelect2","type":"Dropdown","mutli":true,"value":[]},{"idx":"AutoHopVersionToggle","type":"Toggle","value":false},{"idx":"AutoPetMutation","type":"Toggle","value":false},{"idx":"MinAgeInput","type":"Input","text":""},{"idx":"JobIdInput","type":"Input","text":""},{"idx":"SelectHarvestPlants","type":"Dropdown","mutli":true,"value":[]},{"idx":"WebhookURLInput","type":"Input","text":""},{"idx":"AutoHatchEggToggle","type":"Toggle","value":false},{"idx":"AutoAntiAFK","type":"Toggle","value":true},{"idx":"AutoSellLowerKGPet","type":"Toggle","value":false},{"idx":"AutoBuyMerchant","type":"Toggle","value":false},{"idx":"PetWebhookToggle","type":"Toggle","value":false},{"idx":"SelectEggsMulti","type":"Dropdown","mutli":true,"value":[]},{"idx":"AutoBuySeedShop","type":"Toggle","value":false},{"idx":"PlantPositionMode","type":"Dropdown","value":"Random"}]}]]
+local DEFAULT_FOLDER = _G.DuckXHub_ConfigFolder or "DuckXHub"
+local DEFAULT_ORIG_CONFIG = _G.DuckXHub_DefaultConfig or [[{"objects":[]}]]
+
+local DEFAULT_ORIG_CONFIG_PATH = DEFAULT_FOLDER .. "/original_config.json"
 
 local SaveManager = {} do
-	SaveManager.Folder = "DuckXHub"
+	SaveManager.Folder = DEFAULT_FOLDER
 	SaveManager.Parser = {
 		Toggle = {
 			Save = function(idx, object) return { type = "Toggle", idx = idx, value = object.Value } end,
@@ -64,13 +66,7 @@ local SaveManager = {} do
 	end
 
 	function SaveManager:BuildFolderTree()
-		local paths = {
-			self.Folder,
-			self.Folder .. "/settings"
-		}
-		for _, str in ipairs(paths) do
-			if not isfolder(str) then makefolder(str) end
-		end
+		if not isfolder(self.Folder) then makefolder(self.Folder) end
 		if not isfile(DEFAULT_ORIG_CONFIG_PATH) then
 			writefile(DEFAULT_ORIG_CONFIG_PATH, DEFAULT_ORIG_CONFIG)
 		end
@@ -79,7 +75,7 @@ local SaveManager = {} do
 	function SaveManager:Save(name, isInitial)
 		if not name then return false, "no config file is selected" end
 		if not self.Options then return false, "Options not available" end
-		local fullPath = self.Folder .. "/settings/" .. name .. ".json"
+		local fullPath = self.Folder .. "/" .. name .. ".json"
 		local data = { objects = {} }
 		for idx, option in next, self.Options or {} do
 			if not self.Parser[option.Type] then continue end
@@ -97,7 +93,7 @@ local SaveManager = {} do
 	function SaveManager:Load(name)
 		if not name then return false, "no config file is selected" end
 		if not self.Options then return false, "Options not available" end
-		local file = self.Folder .. "/settings/" .. name .. ".json"
+		local file = self.Folder .. "/" .. name .. ".json"
 		if not isfile(file) then return false, "invalid file" end
 		local success, decoded = pcall(httpService.JSONDecode, httpService, readfile(file))
 		if not success then return false, "decode error" end
@@ -115,8 +111,8 @@ local SaveManager = {} do
 			warn("[SaveManager] Not ready to auto init player config.")
 			return
 		end
-		local configName = tostring(playerId) .. "-GAG"
-		local file = self.Folder .. "/settings/" .. configName .. ".json"
+		local configName = tostring(playerId)
+		local file = self.Folder .. "/" .. configName .. ".json"
 		if not isfile(file) then
 			local ok, err = self:Save(configName, true)
 			if ok then
@@ -146,7 +142,7 @@ local SaveManager = {} do
 	function SaveManager:ResetConfig()
 		local name = self._autoConfigName
 		if not name then return end
-		local file = self.Folder .. "/settings/" .. name .. ".json"
+		local file = self.Folder .. "/" .. name .. ".json"
 		local origData = nil
 		if isfile(DEFAULT_ORIG_CONFIG_PATH) then
 			origData = readfile(DEFAULT_ORIG_CONFIG_PATH)
