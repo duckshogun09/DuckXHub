@@ -1,5 +1,18 @@
 -- BlackScreen.lua
 local TweenService = game:GetService("TweenService")
+local MarketplaceService = game:GetService("MarketplaceService")
+
+local function GetGameName()
+    local success, info = pcall(function()
+        return MarketplaceService:GetProductInfo(game.PlaceId)
+    end)
+    if success and info and info.Name then
+        return info.Name
+    else
+        return "Unknown Game"
+    end
+end
+
 local function BlackScreenEffect(PlayerGui)
     local introGui = Instance.new("ScreenGui")
     introGui.Name = "DuckXHubIntroGui"
@@ -43,7 +56,7 @@ local function BlackScreenEffect(PlayerGui)
         TweenService:Create(lbl, TweenInfo.new(0.7, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {TextTransparency = 0}):Play()
     end
 
-    wait(1.5)
+    task.wait(1.5)
 
     -- Fade-out
     local fadeTween = TweenService:Create(bg, TweenInfo.new(0.7, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {BackgroundTransparency = 1})
@@ -89,7 +102,7 @@ local function SetBlackScreen(PlayerGui, state)
             title.Parent = BlackScreenGui
 
             local subtitle = Instance.new("TextLabel")
-            subtitle.Text = "Grow A Garden"
+            subtitle.Text = GetGameName()
             subtitle.Font = Enum.Font.GothamSemibold
             subtitle.TextSize = 40
             subtitle.TextColor3 = Color3.fromRGB(200, 200, 200)
