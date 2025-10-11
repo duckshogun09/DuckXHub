@@ -84,7 +84,7 @@ local function SetBlackScreen(PlayerGui, state)
             bg.Size = UDim2.new(1, 0, 1, 0)
             bg.BackgroundColor3 = Color3.new(0, 0, 0)
             bg.BorderSizePixel = 0
-            bg.BackgroundTransparency = 0.05
+            bg.BackgroundTransparency = 0
             bg.Parent = BlackScreenGui
 
             local title = Instance.new("TextLabel")
