@@ -46,7 +46,7 @@ local function BlackScreenEffect(PlayerGui)
     madeBy.TextColor3 = Color3.fromRGB(200, 200, 200)
     madeBy.TextTransparency = 1
     madeBy.BackgroundTransparency = 1
-    madeBy.Position = UDim2.new(0.5, -120, 0.60, 0)
+    madeBy.Position = UDim2.new(0.5, -120, 0.46, 0)
     madeBy.Size = UDim2.new(0, 240, 0, 35)
     madeBy.Parent = introGui
 
