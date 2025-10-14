@@ -31,7 +31,7 @@ local function BlackScreenEffect(PlayerGui)
     local title = Instance.new("TextLabel")
     title.Text = "DuckXHub"
     title.Font = Enum.Font.GothamBold
-    title.TextSize = 64
+    title.TextSize = 70
     title.TextColor3 = Color3.fromRGB(255, 255, 255)
     title.TextTransparency = 1
     title.BackgroundTransparency = 1
@@ -39,20 +39,9 @@ local function BlackScreenEffect(PlayerGui)
     title.Size = UDim2.new(0, 360, 0, 80)
     title.Parent = introGui
 
-    local madeBy = Instance.new("TextLabel")
-    madeBy.Text = "Made by duckfankurumi"
-    madeBy.Font = Enum.Font.Gotham
-    madeBy.TextSize = 22
-    madeBy.TextColor3 = Color3.fromRGB(200, 200, 200)
-    madeBy.TextTransparency = 1
-    madeBy.BackgroundTransparency = 1
-    madeBy.Position = UDim2.new(0.5, -120, 0.50, 0)
-    madeBy.Size = UDim2.new(0, 240, 0, 35)
-    madeBy.Parent = introGui
-
     -- Fade-in
     TweenService:Create(bg, TweenInfo.new(0.7, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {BackgroundTransparency = 0.2}):Play()
-    for _, lbl in ipairs({title, madeBy}) do
+    for _, lbl in ipairs({title}) do
         TweenService:Create(lbl, TweenInfo.new(0.7, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {TextTransparency = 0}):Play()
     end
 
@@ -61,7 +50,7 @@ local function BlackScreenEffect(PlayerGui)
     -- Fade-out
     local fadeTween = TweenService:Create(bg, TweenInfo.new(0.7, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {BackgroundTransparency = 1})
     fadeTween:Play()
-    for _, lbl in ipairs({title, madeBy}) do
+    for _, lbl in ipairs({title}) do
         TweenService:Create(lbl, TweenInfo.new(0.7, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {TextTransparency = 1}):Play()
     end
     fadeTween.Completed:Wait()
